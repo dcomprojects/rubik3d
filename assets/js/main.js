@@ -422,7 +422,7 @@ var main = (function($) { var _ = {
 					// Slide.
 
 						// Create elements.
-	 						s.$slide = $('<div class="slide"><div class="caption"></div><canvas id="c"></canvas></div>');
+	 						s.$slide = $('<div class="slide"><div class="caption"></div><canvas class="slide" id="c"></canvas></div>');
 
 	 					// Image.
  							s.$slideImage = s.$slide.children('.image');
@@ -736,10 +736,13 @@ var main = (function($) { var _ = {
 	 */
 	toggle: function() {
 
-		if (_.$body.hasClass('fullscreen'))
+		if (_.$body.hasClass('fullscreen')) {
 			_.show();
-		else
+			globalShow();
+		} else {
 			_.hide();
+			globalHide();
+		}
 
 	},
 
