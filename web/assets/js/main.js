@@ -422,7 +422,7 @@ var main = (function($) { var _ = {
 					// Slide.
 
 						// Create elements.
-	 						s.$slide = $('<div class="slide"><div class="caption"></div><div class="image"></div></div>');
+	 						s.$slide = $('<div class="slide"><div class="caption"></div><canvas id="c"></canvas></div>');
 
 	 					// Image.
  							s.$slideImage = s.$slide.children('.image');

@@ -90,6 +90,22 @@
 	<script src="assets/js/breakpoints.min.js"></script>
 	<script src="assets/js/main.js"></script>
 
+	<script>
+		if ('serviceWorker' in navigator) {
+				window.addEventListener('load', () => {
+						navigator.serviceWorker.register('sw.min.js')
+								.then(registration => {
+										console.log('Service Worker registered! 😎');
+								})
+								.catch(err => {
+										console.log('Registration failed 😫 ', err);
+								});
+				});
+		}
+</script>
+
+<script src="app.js"></script>
+
 </body>
 
 </html>

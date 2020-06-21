@@ -37,6 +37,7 @@ gulp.task('processJs', processJs);
 
 function watchJs() {
   gulp.watch('web/assets/js/*.js', processJs);
+  gulp.watch('app/js/*.js', processAnalysis3);
 }
 
 function processAnalysis3() {
@@ -97,7 +98,7 @@ function buildSw() {
       '**',
     ],
     globIgnores: [
-      'sw.js', 'datamodule.js'
+      'sw.js', 'app.js'
     ]
   }).then(resources => {
     console.log(`Injected ${resources.count} resources for precaching, ` +
