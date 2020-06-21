@@ -35,6 +35,14 @@ const onload = () => {
 onload().then(() => {
     const canvas = document.querySelectorAll( "#c" );
 
+    window.globalShow = () => {
+        console.log("Hello");
+    };
+
+    window.globalHide = () => {
+        console.log("Hello Hide");
+    };
+
     blah.main(canvas[0], vs, fs);
 
     console.log(canvas);
