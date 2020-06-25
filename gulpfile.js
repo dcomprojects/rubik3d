@@ -122,6 +122,7 @@ function processCss() {
   return gulp.src('web/assets/css/*.css')
     .pipe(filter([
       'web/assets/css/main.css',
+      'web/assets/css/main2.css',
       'web/assets/css/noscript.css',
       'web/assets/css/fontawesome-all.min.css'
     ]))
