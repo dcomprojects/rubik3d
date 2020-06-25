@@ -1,110 +1,54 @@
 <!DOCTYPE HTML>
-<!--
-	Lens by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
 <html>
 
 <head>
-	<title>Lens by HTML5 UP</title>
+	<title></title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-	<link rel="stylesheet" href="assets/css/main.css" />
-	<noscript>
-		<link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	<link rel="stylesheet" href="assets/css/main2.css" />
 </head>
 
-<body class="is-preload-0 is-preload-1 is-preload-2">
+<body>
 
-	<!-- Main -->
-	<div id="main">
+	<div class="wrapper">
+		<div class="maincube">
+			<canvas id="c"></canvas>
+		</div>
 
-		<!-- Header -->
-		<header id="header">
-			<h1>Lens</h1>
-			<p>Just another fine responsive site template by <a href="http://html5up.net">HTML5 UP</a></p>
-			<ul class="icons">
-				<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-				<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
-				<li><a href="#" class="icon brands fa-github"><span class="label">Github</span></a></li>
-				<li><a href="#" class="icon fa-envelope"><span class="label">Email</span></a></li>
-			</ul>
-		</header>
+		<div class="faces">
+			<div class="upface">Up Face</div>
+			<div class="frontface">Front Face</div>
+			<div class="leftface">Left Face</div>
+			<div class="rightface">Right Face</div>
+			<div class="downface">Down Face</div>
+			<div class="backface">Back Face</div>
+		</div>
 
-		<!-- Thumbnail -->
-		<section id="thumbnails">
-
-			<article>
-				<a class="thumbnail" href="images/fulls/01.jpg" data-position="left center"><img
-						src="images/thumbs/01.jpg" alt="" /></a>
-				<h2>Diam tempus accumsan</h2>
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-			</article>
-
-			<article>
-				<a class="thumbnail" href="images/fulls/02.jpg"><img src="images/thumbs/02.jpg" alt="" /></a>
-				<h2>Vivamus convallis libero</h2>
-				<p>Sed velit lacus, laoreet at venenatis convallis in lorem tincidunt.</p>
-			</article>
-
-			<article>
-				<a class="thumbnail" href="images/fulls/02.jpg"><img src="images/thumbs/02.jpg" alt="" /></a>
-				<h2>Vivamus convallis libero</h2>
-				<p>Sed velit lacus, laoreet at venenatis convallis in lorem tincidunt.</p>
-			</article>
-
-			<article>
-				<a class="thumbnail" href="images/fulls/02.jpg"><img src="images/thumbs/02.jpg" alt="" /></a>
-				<h2>Vivamus convallis libero</h2>
-				<p>Sed velit lacus, laoreet at venenatis convallis in lorem tincidunt.</p>
-			</article>
-
-			<article>
-				<a class="thumbnail" href="images/fulls/02.jpg"><img src="images/thumbs/02.jpg" alt="" /></a>
-				<h2>Vivamus convallis libero</h2>
-				<p>Sed velit lacus, laoreet at venenatis convallis in lorem tincidunt.</p>
-			</article>
-
-			<article>
-				<a class="thumbnail" href="images/fulls/02.jpg"><img src="images/thumbs/02.jpg" alt="" /></a>
-				<h2>Vivamus convallis libero</h2>
-				<p>Sed velit lacus, laoreet at venenatis convallis in lorem tincidunt.</p>
-			</article>
-
-		</section>
-
-		<!-- Footer -->
-		<footer id="footer">
-			<ul class="copyright">
-				<li>&copy; Untitled.</li>
-				<li>Design: <a href="http://html5up.net">HTML5 UP</a>.</li>
-			</ul>
-		</footer>
-
+		<div class="controls">
+			<div class="leftturn"><span>Left</span></div>
+			<div class="upturn">Up</div>
+			<div class="frontturn">Front</div>
+			<div class="downturn">Down</div>
+			<div class="rightturn">Right</div>
+			<div class="backturn">Back</div>
+		</div>
 	</div>
-
-	<!-- Scripts -->
-	<script src="assets/js/jquery.min.js"></script>
-	<script src="assets/js/browser.min.js"></script>
-	<script src="assets/js/breakpoints.min.js"></script>
-	<script src="assets/js/main.js"></script>
 
 	<script>
 		if ('serviceWorker' in navigator) {
-				window.addEventListener('load', () => {
-						navigator.serviceWorker.register('sw.min.js')
-								.then(registration => {
-										console.log('Service Worker registered! 😎');
-								})
-								.catch(err => {
-										console.log('Registration failed 😫 ', err);
-								});
-				});
+			window.addEventListener('load', () => {
+				navigator.serviceWorker.register('sw.min.js')
+					.then(registration => {
+						console.log('Service Worker registered! 😎');
+					})
+					.catch(err => {
+						console.log('Registration failed 😫 ', err);
+					});
+			});
 		}
-</script>
+	</script>
 
-<script src="app.js"></script>
+	<script src="app.js"></script>
 
 </body>
 
