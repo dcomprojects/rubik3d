@@ -11,28 +11,42 @@
 <body>
 
 	<div class="wrapper">
-		<div class="maincube">
-			<canvas id="c"></canvas>
-		</div>
 
-		<div class="faces">
-			<div class="whiteface hvr-glow">White</div>
-			<div class="greenface hvr-glow">Green</div>
-			<div class="orangeface hvr-glow">Orange</div>
-			<div class="redface hvr-glow">Red</div>
-			<div class="yellowface hvr-glow">Yellow</div>
-			<div class="blueface hvr-glow">Blue</div>
+		<div class="m_u">
+		  <div class="box info">
+			Info
+		  </div>
+		  <div class="hvr-grow box cube">
+			  <canvas id="c"></canvas>
+		  </div>
+		  <div class="faces">
+			<div class="hvr-glow box white">White</div>
+			<div class="hvr-glow box red">Red</div>
+			<div class="hvr-glow box green">Green</div>
+			<div class="hvr-glow box blue">Blue</div>
+			<div class="hvr-glow box orange">Orange</div>
+			<div class="hvr-glow box yellow">Yellow</div>
+		  </div>
 		</div>
-
-		<div class="controls">
-			<div class="leftturn hvr-fade"><span>Left</span></div>
-			<div class="upturn hvr-fade">Up</div>
-			<div class="frontturn hvr-fade">Front</div>
-			<div class="downturn hvr-fade">Down</div>
-			<div class="rightturn hvr-fade">Right</div>
-			<div class="backturn hvr-fade">Back</div>
+	  
+		<div class="m_l">
+		  <div class="controls">
+			<div class="hvr-fade box invert_left">Invert</div>
+	  
+			<div class="directions">
+			  <div class="hvr-fade box left">Left</div>
+			  <div class="hvr-fade box back">Back</div>
+			  <div class="hvr-fade box front">Front</div>
+			  <div class="hvr-fade box up">Up</div>
+			  <div class="hvr-fade box right">Right</div>
+			  <div class="hvr-fade box down">Down</div>
+			</div>
+	  
+			<div class="hvr-fade box invert_right">Invert</div>
+		  </div>
 		</div>
-	</div>
+	  </div>
+	  
 
 	<script>
 		if ('serviceWorker' in navigator) {
