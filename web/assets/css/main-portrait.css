@@ -3,8 +3,8 @@
 }
 
 body {
-  min-height: -webkit-fill-available;
-  min-height: -moz-available;
+  height: -webkit-fill-available;
+  height: -moz-available;
 }
 
 .m_u {
