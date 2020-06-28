@@ -70,46 +70,79 @@ function main(canvas, vertexShaderSource, fragmentShaderSource) {
 
   var positions = [
     0, 0,
-    0, 0.5,
-    0.7, 0,
+    -0.5, 0.5,
+    0.5, 0.5,
   ];
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-  // code above this line is initialization code.
-  // code below this line is rendering code.
+  let appCtx = {
+    then: 0,
+    gl: gl,
+    program: program,
+    positionAttributeLocation: positionAttributeLocation,
+    positionBuffer: positionBuffer,
+  };
+
+  window.appCtx = appCtx;
+  requestAnimationFrame(drawScene);
+
+}
+
+function drawScene(now) {
+  // Convert to seconds
+  now *= 0.001;
+
+  const gl = window.appCtx.gl;
+  const program = window.appCtx.program;
+  const positionAttributeLocation = window.appCtx.positionAttributeLocation;
+  const positionBuffer = window.appCtx.positionBuffer;
+
+  // Subtract the previous time from the current time
+  var deltaTime = now - window.appCtx.then;
+  // Remember the current time for the next frame.
+  window.appCtx.then = now;
 
   resizeCanvasToDisplaySize(gl.canvas);
 
   // Tell WebGL how to convert from clip space to pixels
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-  // Clear the canvas
-  gl.clearColor(0, 0, 0, 0);
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  // Clear the canvas AND the depth buffer.
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  // Turn on culling. By default backfacing triangles
+  // will be culled.
+  //gl.enable(gl.CULL_FACE);
+
+  // Enable the depth buffer
+  gl.enable(gl.DEPTH_TEST);
 
   // Tell it to use our program (pair of shaders)
   gl.useProgram(program);
 
-  // Turn on the attribute
+  // Turn on the position attribute
   gl.enableVertexAttribArray(positionAttributeLocation);
 
   // Bind the position buffer.
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-  // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-  var size = 2;          // 2 components per iteration
-  var type = gl.FLOAT;   // the data is 32bit floats
+  // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+  var size = 2; // 3 components per iteration
+  var type = gl.FLOAT; // the data is 32bit floats
   var normalize = false; // don't normalize the data
-  var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-  var offset = 0;        // start at the beginning of the buffer
+  var stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
+  var offset = 0; // start at the beginning of the buffer
   gl.vertexAttribPointer(
-      positionAttributeLocation, size, type, normalize, stride, offset);
+    positionAttributeLocation, size, type, normalize, stride, offset);
 
-  // draw
+  // Draw the geometry.
   var primitiveType = gl.TRIANGLES;
   var offset = 0;
   var count = 3;
   gl.drawArrays(primitiveType, offset, count);
+
+  // Call drawScene again next frame
+  requestAnimationFrame(drawScene);
 }
 
 exports.main = main;

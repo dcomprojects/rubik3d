@@ -117,4 +117,6 @@ dist
 build/
 tt.js
 
+app/js/webgl-utils.js
+
 tmp/

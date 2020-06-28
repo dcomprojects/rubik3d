@@ -123,7 +123,7 @@ function processCss() {
     .pipe(filter([
       'web/assets/css/main.css',
       'web/assets/css/main2.css',
-      'web/assets/css/noscript.css',
+      'web/assets/css/main-portrait.css',
       'web/assets/css/fontawesome-all.min.css'
     ]))
     .pipe(cleancss())
