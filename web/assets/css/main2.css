@@ -3,11 +3,10 @@ body {
   padding: 0px;
   font-family: Helvetica;
   margin: 0px;
-  /*height: 100vh;*/
 }
 
 .wrapper {
-  height: 100vh;
+  min-height: 100vh;
   display: grid;
   grid-template-columns: 1fr;
   grid-gap: 5px;
