@@ -7,6 +7,7 @@
   min-height: -moz-available;
   height: -webkit-fill-available;
   height: -moz-available;
+  height: calc(var(--vh, 1vh) * 100);
 }
 
 .m_u {
