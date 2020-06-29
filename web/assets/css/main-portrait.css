@@ -2,16 +2,11 @@
     display: none;
 }
 
-body {
+.wrapper {
   min-height: -webkit-fill-available;
   min-height: -moz-available;
   height: -webkit-fill-available;
   height: -moz-available;
-}
-
-.wrapper {
-    top: 0;
-    bottom: 0;
 }
 
 .m_u {
