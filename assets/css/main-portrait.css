@@ -1,1 +1,1 @@
-.faces{display:none}body{min-height:-webkit-fill-available;min-height:-moz-available;height:-webkit-fill-available;height:-moz-available}.wrapper{top:0;bottom:0}.m_u{grid-template-columns:1fr;grid-template-rows:1fr 4fr;grid-template-areas:"info" "cube"}
+.faces{display:none}.wrapper{min-height:-webkit-fill-available;min-height:-moz-available;height:-webkit-fill-available;height:-moz-available}.m_u{grid-template-columns:1fr;grid-template-rows:1fr 4fr;grid-template-areas:"info" "cube"}
