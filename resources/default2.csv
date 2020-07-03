@@ -1,0 +1,7 @@
+face|corner1|edge1|corner2|edge2|corner3|edge3|corner4|edge4
+w|o,b,w|-,b,w|r,b,w|o,-,w|o,g,w|r,-,w|r,g,w|-,g,w
+g|o,g,w|-,g,w|r,g,w|o,g,-|o,g,y|r,g,-|r,g,y|-,g,y
+o|o,b,w|o,-,w|o,g,w|o,b,-|o,b,y|o,g,-|o,g,y|o,-,y
+b|o,b,w|-,b,w|b,w,o|o,b,-|o,b,y|r,b,-|r,b,y|-,b,y
+r|r,b,w|r,-,w|r,g,w|r,b,-|r,b,y|r,g,-|r,g,y|r,-,y
+y|o,b,y|-,y,b|r,b,y|o,-,y|o,g,y|r,-,y|r,g,y|-,g,y
