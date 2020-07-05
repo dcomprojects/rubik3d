@@ -11,8 +11,6 @@ describe("Cube", function() {
     //console.log(cube.toString());
     cube.rotate("white");
 
-    let corner = cube.getCorner("wrg");
-
     console.log(corner.toString());
 
     //expect(cube.orientation.front).toEqual("blah");

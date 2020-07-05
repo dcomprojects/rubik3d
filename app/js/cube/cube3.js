@@ -3,12 +3,12 @@
 const d3 = require("d3");
 const glm = require("gl-matrix");
 
-const WHITE=0
-const RED=1
-const GREEN=2
-const BLUE=3
-const ORANGE=4
-const YELLOW=5
+const WHITE=0;
+const RED=1;
+const GREEN=2;
+const BLUE=3;
+const ORANGE=4;
+const YELLOW=5;
 
 let colorMap = {
     w: {
@@ -39,7 +39,7 @@ let colorMap = {
     y: {
         value: "yellow",
         code: YELLOW,
-        direction: glm.vec3.fromValues(0,0,-1,1)
+        direction: glm.vec3.fromValues(0,0,-1)
     },
     '#': {
         value: "#",
@@ -56,52 +56,55 @@ COLORS[ORANGE] = colorMap.o;
 COLORS[YELLOW] = colorMap.y; 
 
 let FACES = {
-    white: colorMap["w"],
-    red: colorMap["r"],
-    green: colorMap["g"],
-    blue: colorMap["b"],
-    orange: colorMap["o"],
-    yellow: colorMap["y"]
+    white: colorMap.w,
+    red: colorMap.r,
+    green: colorMap.g,
+    blue: colorMap.b,
+    orange: colorMap.o,
+    yellow: colorMap.y
 };
 
 let ROTATIONS = {
-    white: glm.mat4.fromRotation(glm.mat4.create(), -Math.PI/2.0, colorMap["w"].direction),
-    red: glm.mat4.fromRotation(glm.mat4.create(), -Math.PI/2.0, colorMap["r"].direction),
-    green: glm.mat4.fromRotation(glm.mat4.create(), -Math.PI/2.0, colorMap["g"].direction),
-    blue: glm.mat4.fromRotation(glm.mat4.create(), -Math.PI/2.0, colorMap["b"].direction),
-    orange: glm.mat4.fromRotation(glm.mat4.create(), -Math.PI/2.0, colorMap["o"].direction),
-    yellow: glm.mat4.fromRotation(glm.mat4.create(), -Math.PI/2.0, colorMap["y"].direction)
+    white: glm.mat4.fromRotation(glm.mat4.create(), -Math.PI/2.0, colorMap.w.direction),
+    red: glm.mat4.fromRotation(glm.mat4.create(), -Math.PI/2.0, colorMap.r.direction),
+    green: glm.mat4.fromRotation(glm.mat4.create(), -Math.PI/2.0, colorMap.g.direction),
+    blue: glm.mat4.fromRotation(glm.mat4.create(), -Math.PI/2.0, colorMap.b.direction),
+    orange: glm.mat4.fromRotation(glm.mat4.create(), -Math.PI/2.0, colorMap.o.direction),
+    yellow: glm.mat4.fromRotation(glm.mat4.create(), -Math.PI/2.0, colorMap.y.direction),
 };
 
 function Corner(vec) {
-
     let dir = glm.vec4.create();
 
-    glm.vec3.add(dir, 
+    glm.vec3.add(dir,
         colorMap[vec[0]].direction,
         colorMap[vec[1]].direction);
 
-    glm.vec3.add(dir, 
-        dir, 
+    glm.vec3.add(dir,
+        dir,
         colorMap[vec[2]].direction);
 
-    glm.vec3.normalize(dir, dir);
+    let location = glm.vec3.clone(dir);
 
     Object.assign(this, {
         x: vec[0],
         y: vec[1],
         z: vec[2],
         key: vec.join(""),
-        direction: dir
+        //direction: glm.vec3.normalize(dir, dir),
+        direction: dir, 
+        location: glm.vec3.clone(dir)
     });
 }
 
 Corner.prototype.toString = function() {
    let ret = "";
     ["x", "y", "z"].forEach(s => {
-        ret += `${s} -> ${colorMap[this[s]].value}\n`;
+        ret += `${s} -> ${colorMap[this[s]].value}
+${this.direction}        
+${this.location}        
+`;
     });
-    ret += this.direction;
     return ret;
 };
 
@@ -120,21 +123,26 @@ function Edge(vec) {
         dir, 
         colorMap[vec[2]].direction);
 
-    glm.vec3.normalize(dir, dir);
+    //glm.vec3.normalize(dir, dir);
 
    Object.assign(this, {
         x: vec[0],
         y: vec[1],
         z: vec[2],
         key: vec.join(""),
-        direction: dir
+        //direction: glm.vec3.normalize(dir, dir),
+        direction: dir, 
+        location: glm.vec3.clone(dir)
     });
 }
 
 Edge.prototype.toString = function() {
    let ret = "";
     ["x", "y", "z"].forEach(s => {
-        ret += `${s} -> ${colorMap[this[s]].value}\n`;
+        ret += `${s} -> ${colorMap[this[s]].value}
+${this.direction}        
+${this.location}
+`;
     });
     return ret;
 };
@@ -154,22 +162,26 @@ function Face(vec) {
         dir, 
         colorMap[vec[2]].direction);
 
-    glm.vec3.normalize(dir, dir);
+    //glm.vec3.normalize(dir, dir);
 
   Object.assign(this, {
         x: vec[0],
         y: vec[1],
         z: vec[2],
         key: vec.join(""),
-        direction: dir
+        //direction: glm.vec3.normalize(dir, dir),
+        direction: dir, 
+        location: glm.vec3.clone(dir)
     });
-
 }
 
 Face.prototype.toString = function() {
    let ret = "";
     ["x", "y", "z"].forEach(s => {
-        ret += `${s} -> ${colorMap[this[s]].value}\n`;
+        ret += `${s} -> ${colorMap[this[s]].value}
+${this.direction}        
+${this.location}
+`;
     });
     return ret;
 };
@@ -190,14 +202,16 @@ function Center(vec) {
         dir, 
         colorMap[vec[2]].direction);
 
-    glm.vec3.normalize(dir, dir);
+    //glm.vec3.normalize(dir, dir);
 
     Object.assign(this, {
         x: vec[0],
         y: vec[1],
         z: vec[2],
         key: vec.join(""),
-        direction: dir
+        //direction: glm.vec3.normalize(dir, dir),
+        direction: dir, 
+        location: glm.vec3.clone(dir)
     });
 
 }
@@ -205,7 +219,10 @@ function Center(vec) {
 Center.prototype.toString = function() {
    let ret = "";
     ["x", "y", "z"].forEach(s => {
-        ret += `${s} -> ${colorMap[this[s]].value}\n`;
+        ret += `${s} -> ${colorMap[this[s]].value}
+${this.direction}        
+${this.location}
+`;
     });
     return ret;
 };
@@ -243,7 +260,6 @@ function getIndex(s) {
     let vec = [];
     let i = 0;
     s.split(",").map(c => {
-        console.log(s);
         i += colorMap2[c] === 0 ? 0 : 1;
         vec.push(c);
     });
@@ -297,7 +313,7 @@ function Cube3(csv) {
     for (let x = 0; x < 3; x++) {
         for (let y = 0; y < 3; y++) {
             for (let z = 0; z < 3; z++) {
-                console.log(`(${x} ${y} ${z}): ${cube[x][y][z].toString()}`);
+                //console.log(`(${x} ${y} ${z}): ${cube[x][y][z].toString()}`);
             }
         }
     }
@@ -316,14 +332,16 @@ Cube3.prototype.toString = function() {
 
 Cube3.prototype.rotate = function(face) {
 
-    this.getFacePieces("white").forEach(p => {
-        glm.vec3.transformMat4(p.direction, p.direction, ROTATIONS["white"]);
-    });
-    this.getFacePieces("red").forEach(p => {
-        glm.vec3.transformMat4(p.direction, p.direction, ROTATIONS["red"]);
-    });
+    this.getFacePieces(face).forEach(p => {
+        let m1 = glm.mat4.fromTranslation(glm.mat4.create(), glm.vec3.scale(glm.vec3.create(), FACES[face].direction, -1));
+        let r1 = ROTATIONS[face]; 
+        let m2 = glm.mat4.fromTranslation(glm.mat4.create(), FACES[face].direction);
 
-    console.log(this.getFacePieces("red").map(p => p.key));
+        glm.mat4.multiply(r1, r1, m1);
+        glm.mat4.multiply(m2, m2, r1);
+
+        glm.vec4.transformMat4(p.direction, p.direction, m2);
+    });
 };
 
 Cube3.prototype.getCorner = function(c) {
@@ -336,13 +354,11 @@ Cube3.prototype.getFacePieces = function(face) {
 
     let ret = [];
     Object.keys(this.pieces).forEach(p => {
-        if (glm.vec3.dot(dir, this.pieces[p].direction) > 0) {
+        let dot = glm.vec3.dot(dir, this.pieces[p].direction);
+        if (dot - 1e-7 > 0) {
             ret.push(this.pieces[p]);
         }
     });
-
-    console.log(ret.length);
-    console.log(ret);
     return ret;
 };
 

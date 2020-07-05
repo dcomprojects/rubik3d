@@ -12,6 +12,8 @@ describe("Cube3", function () {
   it("Initialize Cube", function () {
     //console.log(cube.toString());
     cube.rotate("white");
+    cube.rotate("red");
+    console.log(cube.getFacePieces("red"));
   });
 
 });
