@@ -13,36 +13,43 @@ const YELLOW=5;
 let colorMap = {
     w: {
         value: "white",
+        key: "w",
         code: WHITE,
         direction: glm.vec3.fromValues(0,0,1)
     },
     r: {
         value: "red",
+        key: "r",
         code: RED,
         direction: glm.vec3.fromValues(1,0,0)
     },
     g: {
         value: "green",
+        key: "g",
         code: GREEN,
         direction: glm.vec3.fromValues(0,-1,0)
     },
     b: {
         value: "blue",
+        key: "b",
         code: BLUE,
         direction: glm.vec3.fromValues(0,1,0)
     },
     o: {
         value: "orange",
+        key: "o",
         code: ORANGE,
         direction: glm.vec3.fromValues(-1,0,0)
     },
     y: {
         value: "yellow",
+        key: "y",
         code: YELLOW,
         direction: glm.vec3.fromValues(0,0,-1)
     },
     '#': {
         value: "#",
+        key: "#",
         direction: glm.vec3.fromValues(0,0,0)
     }
 };
@@ -64,29 +71,44 @@ let FACES = {
     yellow: colorMap.y
 };
 
-function ColorFace(color, vector, transform) {
+function ColorFace(cube, color, vector, transform) {
     Object.assign(this, {
         color: color,
         vector: glm.vec3.clone(vector),
-        matrix: glm.mat4.clone(transform)
+        parentTransform: transform,
+        cube: cube
     });
 }
 
 ColorFace.prototype.position = function() {
-    return glm.vec3.transformMat4(glm.vec3.create(), this.vector, this.matrix);
-};
-
-ColorFace.prototype.transform = function(m) {
-    console.log(`Current: ${this.color} ${this.position()}`);
-    glm.mat4.multiply(this.matrix, this.matrix, m);
-    console.log(`Post Transform: ${this.color} ${this.position()}`);
+    return glm.vec3.transformMat4(glm.vec3.create(), this.vector, this.parentTransform);
 };
 
 ColorFace.prototype.toString = function() {
     return `${this.color}: ${this.position()}`; 
 };
 
-function Piece(s) {
+ColorFace.prototype.adjacentCenter = function() {
+
+    let pos = this.position();
+    let max;
+    let ret;
+
+    Object.keys(FACES).forEach(k => {
+        let f = FACES[k];
+        let p = this.cube.get(f.key);
+        let dot = glm.vec3.dot(p.get(f.value), pos);
+
+        if (!max || max < dot) {
+            max = dot;
+            ret = p; 
+        }
+    });
+
+    return ret;
+};
+
+function Piece(cube, s) {
 
     let i = 0;
     let colorFaces = {};
@@ -105,7 +127,7 @@ function Piece(s) {
     s.split(",").map(c => {
 
         let color = colorMap[c].value;
-        colorFaces[color] = new ColorFace(color, colorMap[c].direction, transform);
+        colorFaces[color] = new ColorFace(cube, color, colorMap[c].direction, transform);
     });
 
     let key = colors.join("");
@@ -116,32 +138,22 @@ function Piece(s) {
         vector: glm.vec3.fromValues(0,0,0),
         position: position, //to be calculated on the fly from transform
         transform: transform,
-        key: key
+        key: key,
+        cube: cube
     });
 }
 
 Piece.prototype.rotate = function (m) {
-    glm.vec3.transformMat4(this.position, this.position, m);
-    Object.keys(this.ijk).forEach(k => {
-        this.ijk[k].transform(m);
-    });
+    glm.mat4.mul(this.transform, m, this.transform);
 };
 
 Piece.prototype.toString = function() {
 
-    let blah = "";
-
-    Object.keys(this.ijk).forEach(a => {
-        let c  = this.ijk[a];
-        blah += `${a}: ${c.colorFace}
-`;
-    });
-
     return `
 Colors: ${this.colors}
-Position: ${this.position}
+Position: ${this.position2()}
 Key: ${this.key}
-Color Faces: ${blah}
+Color Faces: ${this.colorFaces}
 `;
 
 };
@@ -151,12 +163,11 @@ Piece.prototype.position2 = function() {
 };
 
 Piece.prototype.get = function(color) {
-    console.log("blah");
-    //console.log(this.ijk[color].colorFace.toString());
-    //return this.ijk[color].colorFace.position();
-
-    console.log(this.colorFaces[color].toString());
     return this.colorFaces[color].position();
+};
+
+Piece.prototype.getColors = function() {
+    return this.colorFaces; 
 };
 
 function Cube5(csv) {
@@ -167,7 +178,7 @@ function Cube5(csv) {
     this.pieces = new Map();
 
     data.forEach(r => {
-        let v = new Piece(r.data);
+        let v = new Piece(this, r.data);
         this.pieces.set(v.key, v);
     });
 
@@ -211,7 +222,24 @@ Cube5.prototype.rotate = function(face) {
         let p = this.pieces.get(k); 
         let rota = this.faceRotations[face];
         let dir = FACES[face].direction; 
-        if (glm.vec3.dot(p.position, dir) === 1) {
+        if (glm.vec3.dot(p.position2(), dir) === 1) {
+            console.log(p.toString());
+            p.rotate(rota);
+            console.log(p.toString());
+        }
+    }
+
+};
+
+Cube5.prototype.rotateReverse = function(face) {
+
+    console.log(`Rotate: ${face}`);
+    for (const k of this.pieces.keys()) {
+
+        let p = this.pieces.get(k); 
+        let rota = glm.mat4.invert(glm.mat4.create(), this.faceRotations[face]);
+        let dir = FACES[face].direction; 
+        if (glm.vec3.dot(p.position2(), dir) === 1) {
             console.log(p.toString());
             p.rotate(rota);
             console.log(p.toString());
@@ -222,6 +250,21 @@ Cube5.prototype.rotate = function(face) {
 
 Cube5.prototype.get = function(key) {
     return this.pieces.get(key);
+};
+
+Cube5.prototype.getFace = function(color) {
+
+    let dir = FACES[color].direction;
+
+    let ret = [];
+    for (const k of this.pieces.keys()) {
+        let p = this.pieces.get(k);
+        if (glm.vec3.dot(p.position2(), dir) === 1) {
+            ret.push(p);
+        }
+    }
+
+    return ret;
 };
 
 module.exports = Cube5;

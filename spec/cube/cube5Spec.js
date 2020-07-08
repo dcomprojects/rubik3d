@@ -10,7 +10,7 @@ describe("Cube5", function () {
     }));
   });
 
-  it("Initialize Cube", function () {
+  it("initializes cube", function () {
 
     //-x orange face
     expect(cube.get("ogy").position2()).toEqual(glm.vec3.fromValues(-1, -1, -1));
@@ -89,11 +89,106 @@ describe("Cube5", function () {
     expect(cube.get("obw").position2()).toEqual(glm.vec3.fromValues(-1, 1, 1));
     expect(cube.get("bw").position2()).toEqual(glm.vec3.fromValues(0, 1, 1));
     expect(cube.get("rbw").position2()).toEqual(glm.vec3.fromValues(1, 1, 1));
- 
-    //cube.rotate("white");
-    //cube.rotate("red");
-    //cube.rotate("red");
-    //cube.rotate("green");
   });
+
+  it("can get face pieces", function () {
+
+    let pieces = cube.getFace("red").map(p => p.key).sort();
+    expect(pieces.length).toEqual(9);
+    expect(pieces).toEqual([
+      "r", 
+      "rb", "rbw", "rby",
+      "rg", "rgw", "rgy",
+      "rw", "ry"
+  ]);
+  });
+it("can rotate", function () {
+
+  cube.rotate("white");
+  let pieces = cube.getFace("red").map(p => p.key).sort();
+  expect(pieces.length).toEqual(9);
+  expect(pieces).toEqual([
+    "rbw", "bw", "obw",
+    "rg", "r", "rb",
+    "rgy", "ry", "rby"]
+    .sort()
+  );
+
+});
+
+it("can rotate twice", function () {
+
+  cube.rotate("white");
+  cube.rotate("red");
+  let pieces = cube.getFace("red").map(p => p.key).sort();
+  expect(pieces.length).toEqual(9);
+  expect(pieces).toEqual([
+    "rgy", "rg", "rbw",
+    "ry", "r", "bw",
+    "rby", "rb", "obw"]
+    .sort()
+  );
+
+  let face = cube.getFace("orange");
+
+  let topLeft = face 
+    .find(e => glm.vec3.equals(glm.vec3.fromValues(-1,-1,1), e.position2()));
+  let topCenter = face 
+    .find(e => glm.vec3.equals(glm.vec3.fromValues(-1,0,1), e.position2()));
+  let topRight = face 
+    .find(e => glm.vec3.equals(glm.vec3.fromValues(-1,1,1), e.position2()));
+
+  let centerLeft = face
+    .find(e => glm.vec3.equals(glm.vec3.fromValues(-1,-1,0), e.position2()));
+  let center = face
+    .find(e => glm.vec3.equals(glm.vec3.fromValues(-1,0,0), e.position2()));
+  let centerRight = face
+    .find(e => glm.vec3.equals(glm.vec3.fromValues(-1,1,0), e.position2()));
+
+  let bottomLeft = face
+    .find(e => glm.vec3.equals(glm.vec3.fromValues(-1,-1,-1), e.position2()));
+  let bottomCenter = face
+    .find(e => glm.vec3.equals(glm.vec3.fromValues(-1,0,-1), e.position2()));
+  let bottomRight = face
+    .find(e => glm.vec3.equals(glm.vec3.fromValues(-1,1,-1), e.position2()));
+
+    expect(topLeft.key).toEqual("rgw");
+    expect(topCenter.key).toEqual("gw");
+    expect(topRight.key).toEqual("ogw");
+
+    expect(centerLeft.key).toEqual("og");
+    expect(center.key).toEqual("o");
+    expect(centerRight.key).toEqual("ob");
+
+    expect(bottomLeft.key).toEqual("ogy");
+    expect(bottomCenter.key).toEqual("oy");
+    expect(bottomRight.key).toEqual("oby");
+});
+
+it("can rotate reverse", function () {
+
+  cube.rotateReverse("white");
+  let pieces = cube.getFace("red").map(p => p.key).sort();
+  expect(pieces.length).toEqual(9);
+  expect(pieces).toEqual([
+    "ogw", "gw", "rgw",
+    "rg", "r", "rb",
+    "rgy", "ry", "rby"]
+    .sort()
+  );
+});
+
+it("can rotate three times", function () {
+
+  cube.rotate("white");
+  cube.rotate("red");
+  cube.rotateReverse("white");
+  let face = cube.getFace("orange");
+
+  let rbw = face
+    .find(e => e.key === "rbw");
+
+  expect(rbw.getColors().white.adjacentCenter().key).toEqual("o");
+});
 
 });

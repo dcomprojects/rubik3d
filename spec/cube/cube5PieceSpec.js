@@ -12,10 +12,20 @@ describe("Cube5 Pieces", function () {
 
   it("are initialized", function () {
 
-    //-x orange face
+    //ogy color vectors
     expect(cube.get("ogy").get("orange")).toEqual(glm.vec3.fromValues(-2, -1, -1));
     expect(cube.get("ogy").get("green")).toEqual(glm.vec3.fromValues(-1, -2, -1));
     expect(cube.get("ogy").get("yellow")).toEqual(glm.vec3.fromValues(-1, -1, -2));
+  });
+it("can get colors", function () {
+    expect(cube.get("ogy").getColors().orange.position()).toEqual(glm.vec3.fromValues(-2,-1,-1));
+    expect(cube.get("ogy").getColors().orange.adjacentCenter().key).toEqual("o");
+
+    expect(cube.get("bw").getColors().white.position()).toEqual(glm.vec3.fromValues(0,1,2));
+    expect(cube.get("bw").getColors().white.adjacentCenter().key).toEqual("w");
+
+    expect(cube.get("r").getColors().red.position()).toEqual(glm.vec3.fromValues(2,0,0));
+    expect(cube.get("r").getColors().red.adjacentCenter().key).toEqual("r");
   });
 
 });
