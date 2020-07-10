@@ -191,4 +191,57 @@ it("can rotate three times", function () {
   expect(rbw.getColors().white.adjacentCenter().key).toEqual("o");
 });
 
+it("can get by position", function() {
+
+  expect(cube.getByPosition("rgy").key).toEqual("rgy");
+
+});
+
+it("can get by position after rotations", function() {
+
+  cube.rotate("white");
+  cube.rotate("red");
+  cube.rotateReverse("white");
+  expect(cube.getByPosition("obw").key).toEqual("rbw");
+  expect(cube.getByPosition("obw").getFaceColor("o")).toEqual("white");
+  expect(cube.getByPosition("obw").getFaceColor("b")).toEqual("blue");
+  expect(cube.getByPosition("obw").getFaceColor("w")).toEqual("red");
+
+});
+
+it("can get entire face", function() {
+
+  cube.rotate("white");
+  cube.rotate("red");
+  cube.rotateReverse("white");
+
+  expect(cube.getByPosition("ob").getFaceColor("b")).toEqual("blue");
+
+  //to get an entire face
+  expect([
+    "obw", "bw", "rbw",
+    "ob", "b", "rb",
+    "oby", "by", "rby",
+  ].map(pos => cube.getByPosition(pos).getFaceColor("b"))).toEqual(
+    [
+    "blue", "red", "red",  
+    "blue", "blue", "white",  
+    "blue", "blue", "white",  
+  ]);
+
+  expect([
+    "obw", "ow", "ogw",
+    "ob", "o", "og",
+    "oby", "oy", "ogy",
+  ].map(pos => cube.getByPosition(pos).getFaceColor("o"))).toEqual(
+    [
+    "white", "orange", "orange",  
+    "orange", "orange", "orange",  
+    "orange", "orange", "orange",  
+  ]);
+
+});
+
+
+
 });

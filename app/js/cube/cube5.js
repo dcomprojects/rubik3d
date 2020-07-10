@@ -2,6 +2,7 @@
 "use strict";
 const d3 = require("d3");
 const glm = require("gl-matrix");
+//const { ConsoleReporter } = require("jasmine");
 
 const WHITE=0;
 const RED=1;
@@ -170,6 +171,22 @@ Piece.prototype.getColors = function() {
     return this.colorFaces; 
 };
 
+Piece.prototype.getFaceColor = function(color) {
+
+    let colorValue = colorMap[color].value;
+    let ret;
+    Object.keys(this.colorFaces).forEach(k => {
+        let cf = this.colorFaces[k]; 
+
+        if (cf.color !== "#" && cf.adjacentCenter().key === color) {
+            console.log(cf);
+            ret = cf.color;
+        }
+    });
+
+    return ret;
+};
+
 function Cube5(csv) {
 
     let parser = d3.dsvFormat("|");
@@ -250,6 +267,23 @@ Cube5.prototype.rotateReverse = function(face) {
 
 Cube5.prototype.get = function(key) {
     return this.pieces.get(key);
+};
+
+Cube5.prototype.getByPosition = function(key) {
+
+    let vec = glm.vec3.create();
+    key.split("").forEach(c => {
+        glm.vec3.add(vec, vec, colorMap[c].direction);
+    });
+
+    for (const k of this.pieces.keys()) {
+        let p = this.pieces.get(k);
+        if (glm.vec3.equals(p.position2(), vec)) {
+            return p;
+        }
+    }
+
+    return undefined;
 };
 
 Cube5.prototype.getFace = function(color) {
