@@ -19,13 +19,17 @@ function drawCube(width, height) {
         [0, 2, "red"], [1, 2, "white"], [2, 2, "yellow"],
     ];
 
-    let myfn = (d) => {
+    let pieceFn = (d) => {
         let p = d3.path();
         p.rect(d[0] * dim/3.0, d[1] * dim/3.0, dim/3.0, dim/3.0);
         return p;
     };
 
-    let fn = (g) => {
+    let borderFn = (g) => {
+
+        g.append("path")
+        .attr("d", pieceFn) 
+        .attr("fill", d => d[2]);
 
         g.append("line")
         .attr("stroke", "black")
@@ -43,6 +47,7 @@ function drawCube(width, height) {
 
     };
 
+    /*
     svg.append("g")
         .selectAll("g")
         .data(data)
@@ -50,12 +55,13 @@ function drawCube(width, height) {
         .append("path")
         .attr("d", myfn) 
         .attr("fill", d => d[2]);
+    */
 
     svg.append("g")
         .selectAll("g")
         .data(data)
         .join("g")
-        .call(fn);
+        .call(borderFn);
         /*
         .append("line")
         .attr("stroke", "black")
