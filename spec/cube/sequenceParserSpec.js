@@ -1,5 +1,3 @@
-//import {SequenceParser} from '../../app/js/cube/sequenceParser.js';
-
 describe("Sequence Parser", function () {
   var parser = require('../../app/js/cube/sequenceParser');
 

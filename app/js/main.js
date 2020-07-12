@@ -1,5 +1,6 @@
 
 const blah = require("./blah.js");
+const somed3 = require("./somed3");
 
 const vs = `
 // an attribute will receive data from a buffer
@@ -56,6 +57,10 @@ onload().then(() => {
     };
 
     blah.main(canvas[0], vs, fs);
+
+    const blueFace = document.querySelector(".faces .white");
+    const svg = somed3.drawCube(blueFace.clientWidth, blueFace.clientHeight);
+    blueFace.append(svg);
 
     console.log(canvas);
 });
