@@ -58,9 +58,25 @@ onload().then(() => {
 
     blah.main(canvas[0], vs, fs);
 
+    [
+        "white", "red", "green",
+        "blue", "yellow", "orange",
+    ].forEach(c => {
+        const face = document.querySelector(`.faces .${c}`);
+        //console.log(`${face.clientWidth} ${face.clientHeight}`);
+        const svg = somed3.drawCube(face.clientWidth, face.clientHeight, c);
+        face.append(svg);
+    });
+
+    /*
     const blueFace = document.querySelector(".faces .white");
     const svg = somed3.drawCube(blueFace.clientWidth, blueFace.clientHeight);
     blueFace.append(svg);
+
+    const orangeFace = document.querySelector(".faces .orange");
+    const svg2 = somed3.drawCube(orangeFace.clientWidth, orangeFace.clientHeight);
+    orangeFace.append(svg2);
+    */
 
     console.log(canvas);
 });
