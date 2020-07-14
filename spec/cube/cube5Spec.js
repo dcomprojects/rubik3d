@@ -242,15 +242,37 @@ it("can get entire face", function() {
 
 });
 
-it("can get current face colors", function() {
+it("can get face piece identifiers", function() {
 
-
-  expect(cube.getColorsByFace("blah")).toEqual(
+  expect(cube.getFacePiecePositions("o")).toEqual(
     [
-      "a"
+      "obw", "ow", "ogw",
+      "ob", "o", "og",
+      "oby", "oy", "ogy",
     ]);
 
 });
+
+it("can get face colors", function() {
+
+  expect(cube.getFaceColors("o")).toEqual(
+    [
+      "orange", "orange", "orange",
+      "orange", "orange", "orange",
+      "orange", "orange", "orange",
+    ]);
+
+  expect(cube.getFaceColors("w")).toEqual(
+    [
+      "white", "white", "white",
+      "white", "white", "white",
+      "white", "white", "white",
+    ]);
+
+
+});
+
+
 
 
 });

@@ -307,27 +307,37 @@ Cube5.prototype.getFace = function(color) {
     return ret;
 };
 
-Cube5.prototype.getColorsByFace = function(faceColor)
+Cube5.prototype.getFacePiecePositions = function(faceColor)
 {
-    /*
-    "obw", "ow", "ogw",
-    "ob", "o", "og",
-    "oby", "oy", "ogy",
-    */
-
-    let orange1 = ["o"];
-    let orange2 = ["w", "", "y"];
-    let orange3 = ["b", "", "g"];
+    let a1 = [faceColor];
+    let a2 = [
+        colorMap[faceColor].adjacent[0], 
+        "",
+        colorMap[faceColor].adjacent[1], 
+    ];
+    let a3 = [
+        colorMap[faceColor].adjacent[2], 
+        "",
+        colorMap[faceColor].adjacent[3], 
+    ];
 
     let ret = [];
-    for(const c1 of orange1) {
-        for(const c2 of orange2) {
-            for (const c3 of orange3) {
+    for(const c1 of a1) {
+        for(const c2 of a2) {
+            for (const c3 of a3) {
                 ret.push(`${c1}${c3}${c2}`);
             }
         }
     } 
     return ret;
+};
+
+Cube5.prototype.getFaceColors = function(face) {
+
+    return this.getFacePiecePositions(face)
+        .map(p => this.getByPosition(p))
+        .map(pos => pos.getFaceColor(face));
+
 };
 
 module.exports = Cube5;
