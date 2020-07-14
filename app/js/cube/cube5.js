@@ -16,37 +16,43 @@ let colorMap = {
         value: "white",
         key: "w",
         code: WHITE,
-        direction: glm.vec3.fromValues(0,0,1)
+        direction: glm.vec3.fromValues(0,0,1),
+        adjacent: ["b", "g", "o", "r"],
     },
     r: {
         value: "red",
         key: "r",
         code: RED,
-        direction: glm.vec3.fromValues(1,0,0)
+        direction: glm.vec3.fromValues(1,0,0),
+        adjacent: ["w", "y", "g", "b"],
     },
     g: {
         value: "green",
         key: "g",
         code: GREEN,
-        direction: glm.vec3.fromValues(0,-1,0)
+        direction: glm.vec3.fromValues(0,-1,0),
+        adjacent: ["w", "y", "o", "r"],
     },
     b: {
         value: "blue",
         key: "b",
         code: BLUE,
-        direction: glm.vec3.fromValues(0,1,0)
+        direction: glm.vec3.fromValues(0,1,0),
+        adjacent: ["w", "y", "r", "o"],
     },
     o: {
         value: "orange",
         key: "o",
         code: ORANGE,
-        direction: glm.vec3.fromValues(-1,0,0)
+        direction: glm.vec3.fromValues(-1,0,0),
+        adjacent: ["w", "y", "b", "g"],
     },
     y: {
         value: "yellow",
         key: "y",
         code: YELLOW,
-        direction: glm.vec3.fromValues(0,0,-1)
+        direction: glm.vec3.fromValues(0,0,-1),
+        adjacent: ["g", "b", "o", "r"],
     },
     '#': {
         value: "#",
@@ -298,6 +304,29 @@ Cube5.prototype.getFace = function(color) {
         }
     }
 
+    return ret;
+};
+
+Cube5.prototype.getColorsByFace = function(faceColor)
+{
+    /*
+    "obw", "ow", "ogw",
+    "ob", "o", "og",
+    "oby", "oy", "ogy",
+    */
+
+    let orange1 = ["o"];
+    let orange2 = ["w", "", "y"];
+    let orange3 = ["b", "", "g"];
+
+    let ret = [];
+    for(const c1 of orange1) {
+        for(const c2 of orange2) {
+            for (const c3 of orange3) {
+                ret.push(`${c1}${c3}${c2}`);
+            }
+        }
+    } 
     return ret;
 };
 

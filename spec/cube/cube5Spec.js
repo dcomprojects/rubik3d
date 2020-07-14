@@ -242,6 +242,15 @@ it("can get entire face", function() {
 
 });
 
+it("can get current face colors", function() {
+
+
+  expect(cube.getColorsByFace("blah")).toEqual(
+    [
+      "a"
+    ]);
+
+});
 
 
 });
