@@ -65,23 +65,20 @@ onload().then(() => {
 
     d3.text("default3.csv").then((d) => {
 
-        let c = new Cube(d);
+        let cube = new Cube(d);
         let scramble = parser.SequenceParser("B L2 B' D' U' L' D' L2 B D B F' L2 R U' B2 F' D R2 B F D2 L R' B' L' F2 D F D'");
-        scramble(c);
-
-        let orangeFaceColors = [
-            "obw", "ow", "ogw",
-            "ob", "o", "og",
-            "oby", "oy", "ogy",
-        ].map(pos => c.getByPosition(pos).getFaceColor("o"));
+        scramble(cube);
 
         [
             "white", "red", "green",
             "blue", "yellow", "orange",
-        ].forEach(c => {
-            const face = document.querySelector(`.faces .${c}`);
-            const svg = somed3.drawCube(face.clientWidth, face.clientHeight, orangeFaceColors);
+        ].forEach(color => {
+
+            let faceColors = cube.getFaceColors(color);
+            const face = document.querySelector(`.faces .${color}`);
+            const svg = somed3.drawCube(face.clientWidth, face.clientHeight, faceColors);
             face.append(svg);
+
         });
 
     });

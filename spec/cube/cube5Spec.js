@@ -262,7 +262,7 @@ it("can get face colors", function() {
       "orange", "orange", "orange",
     ]);
 
-  expect(cube.getFaceColors("w")).toEqual(
+  expect(cube.getFaceColors("white")).toEqual(
     [
       "white", "white", "white",
       "white", "white", "white",

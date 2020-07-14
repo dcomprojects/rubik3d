@@ -334,6 +334,10 @@ Cube5.prototype.getFacePiecePositions = function(faceColor)
 
 Cube5.prototype.getFaceColors = function(face) {
 
+    if (!(face in colorMap)) {
+        face = FACES[face].key;
+    }
+
     return this.getFacePiecePositions(face)
         .map(p => this.getByPosition(p))
         .map(pos => pos.getFaceColor(face));
