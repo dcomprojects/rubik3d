@@ -1,6 +1,11 @@
 
 const blah = require("./blah.js");
 const somed3 = require("./somed3");
+const Cube = require("./cube/cube5");
+const parser = require('./cube/sequenceParser');
+const d3 = require("d3");
+
+
 
 const vs = `
 // an attribute will receive data from a buffer
@@ -58,25 +63,28 @@ onload().then(() => {
 
     blah.main(canvas[0], vs, fs);
 
-    [
-        "white", "red", "green",
-        "blue", "yellow", "orange",
-    ].forEach(c => {
-        const face = document.querySelector(`.faces .${c}`);
-        //console.log(`${face.clientWidth} ${face.clientHeight}`);
-        const svg = somed3.drawCube(face.clientWidth, face.clientHeight, c);
-        face.append(svg);
+    d3.text("default3.csv").then((d) => {
+
+        let c = new Cube(d);
+        let scramble = parser.SequenceParser("B L2 B' D' U' L' D' L2 B D B F' L2 R U' B2 F' D R2 B F D2 L R' B' L' F2 D F D'");
+        scramble(c);
+
+        let orangeFaceColors = [
+            "obw", "ow", "ogw",
+            "ob", "o", "og",
+            "oby", "oy", "ogy",
+        ].map(pos => c.getByPosition(pos).getFaceColor("o"));
+
+        [
+            "white", "red", "green",
+            "blue", "yellow", "orange",
+        ].forEach(c => {
+            const face = document.querySelector(`.faces .${c}`);
+            const svg = somed3.drawCube(face.clientWidth, face.clientHeight, orangeFaceColors);
+            face.append(svg);
+        });
+
     });
-
-    /*
-    const blueFace = document.querySelector(".faces .white");
-    const svg = somed3.drawCube(blueFace.clientWidth, blueFace.clientHeight);
-    blueFace.append(svg);
-
-    const orangeFace = document.querySelector(".faces .orange");
-    const svg2 = somed3.drawCube(orangeFace.clientWidth, orangeFace.clientHeight);
-    orangeFace.append(svg2);
-    */
 
     console.log(canvas);
 });

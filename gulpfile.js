@@ -74,7 +74,8 @@ function copy() {
       'web/**/*.scss',
       'web/**/webfonts/*',
       'web/**/d3/d3.js',
-      'web/**/data/*'
+      'web/**/data/*',
+      'resources/**/default3.csv'
     ])
     .pipe(gulp.dest('build'));
 }
@@ -127,7 +128,7 @@ function processCss() {
       'web/assets/css/fontawesome-all.min.css'
     ]))
     .pipe(cleancss())
-    .pipe(gulp.dest('build/assets/css/'))
+    .pipe(gulp.dest('build/assets/css/'));
 }
 
 gulp.task('processCss', processCss)

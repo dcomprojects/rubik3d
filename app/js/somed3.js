@@ -1,14 +1,14 @@
 d3 = require("d3");
 
-function drawCube(width, height, color) {
+function drawCube(width, height, inData) {
     const svg = d3.create("svg")
     .attr("viewBox", [0, 0, width, height]);
 
     let dim = d3.min([width, height]);
 
-    let inData = [
+    let inDatax = [
         "red", "green", "blue",
-        "orange", color, "red",
+        "orange", "red", "red",
         "red", "white", "yellow",
     ];
 
