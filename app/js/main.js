@@ -1,11 +1,11 @@
-
 const blah = require("./blah.js");
 const somed3 = require("./somed3");
 const Cube = require("./cube/cube5");
 const parser = require('./cube/sequenceParser');
 const d3 = require("d3");
-
-
+const {
+    svg
+} = require("d3");
 
 const vs = `
 // an attribute will receive data from a buffer
@@ -48,7 +48,7 @@ onload().then(() => {
 
     // We listen to the resize event
     window.addEventListener('resize', () => {
-    // We execute the same script as before
+        // We execute the same script as before
         let vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
     });
@@ -66,22 +66,99 @@ onload().then(() => {
     d3.text("default3.csv").then((d) => {
 
         let cube = new Cube(d);
-        let scramble = parser.SequenceParser("B L2 B' D' U' L' D' L2 B D B F' L2 R U' B2 F' D R2 B F D2 L R' B' L' F2 D F D'");
-        scramble(cube);
 
-        [
-            "white", "red", "green",
-            "blue", "yellow", "orange",
-        ].forEach(color => {
+        let forward = (color) => {
+            cube.rotate(color);
+        };
 
-            let faceColors = cube.getFaceColors(color);
-            const face = document.querySelector(`.faces .${color}`);
-            const svg = somed3.drawCube(face.clientWidth, face.clientHeight, faceColors);
-            face.append(svg);
+        let reverse = (color) => {
+            cube.rotateReverse(color);
+        };
 
+        let rotateFn = forward;
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === "Shift") {
+                rotateFn = reverse;
+            }
         });
 
-    });
+        window.addEventListener('keyup', (e) => {
+            if (e.key === "Shift") {
+                rotateFn = forward;
+            }
+        });
 
+        let renderCube = () => {
+            /*
+            let scramble = parser.SequenceParser("B L2 B' D' U' L' D' L2 B D B F' L2 R U' B2 F' D R2 B F D2 L R' B' L' F2 D F D'");
+            scramble(cube);
+            */
+
+            [
+                "white", "red", "green",
+                "blue", "yellow", "orange",
+            ].forEach(color => {
+
+                let faceColors = cube.getFaceColors(color);
+                const face = document.querySelector(`.faces .${color}`);
+                const svg = somed3.drawCube(face.clientWidth, face.clientHeight, faceColors);
+                console.log(svg);
+                face.append(svg);
+
+            });
+
+        };
+
+        renderCube();
+
+        let update = () => {
+            [
+                "white", "red", "green",
+                "blue", "yellow", "orange",
+            ].forEach(color => {
+
+                let faceColors = cube.getFaceColors(color);
+                const face = document.querySelector(`.faces .${color} > svg`);
+                face.update(faceColors);
+
+            });
+        };
+
+        d3.select('.directions .left')
+            .on("click", (d, i, g) => {
+                rotateFn("orange");
+                update();
+            });
+
+        d3.select('.directions .right')
+            .on("click", (d, i, g) => {
+                rotateFn("red");
+                update();
+            });
+
+        d3.select('.directions .front')
+            .on("click", (d, i, g) => {
+                rotateFn("green");
+                update();
+            });
+
+        d3.select('.directions .up')
+            .on("click", (d, i, g) => {
+                rotateFn("white");
+                update();
+            });
+
+        d3.select('.directions .down')
+            .on("click", (d, i, g) => {
+                rotateFn("yellow");
+                update();
+            });
+        d3.select('.directions .back')
+            .on("click", (d, i, g) => {
+                rotateFn("blue");
+                update();
+            });
+    });
     console.log(canvas);
 });
