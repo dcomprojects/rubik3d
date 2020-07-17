@@ -35,7 +35,7 @@ body {
 
 .faces {
   grid-area: faces;
-  display: grid;
+  display: inline-grid;
   grid-template-columns: 1fr 1fr;
   grid-gap: 2px;
   grid-auto-rows: 1fr;

@@ -39,7 +39,6 @@ const onload = () => {
 };
 
 onload().then(() => {
-    const canvas = document.querySelectorAll("#c");
 
     // First we get the viewport height and we multiple it by 1% to get a value for a vh unit
     let vh = window.innerHeight * 0.01;
@@ -52,8 +51,6 @@ onload().then(() => {
         let vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
     });
-
-    blah.main(canvas[0], vs, fs);
 
     d3.text("default3.csv").then((d) => {
 
@@ -80,6 +77,28 @@ onload().then(() => {
                 rotateFn = forward;
             }
         });
+
+    document.querySelectorAll(".invert").forEach(d => {
+
+        d.addEventListener("touchstart", (ev) => {
+            rotateFn = reverse;
+        }, false);
+
+        d.addEventListener("touchend", (ev) => {
+            rotateFn = forward;
+        }, false);
+
+        d.addEventListener("touchcancel", (ev) => {
+            rotateFn = forward;
+        }, false);
+
+    });
+    /*
+    el.addEventListener("touchmove", (ev) => {
+        ev.preventDefault();
+    }, false);
+    */
+
 
         let renderCube = () => {
             /*
@@ -129,12 +148,19 @@ onload().then(() => {
         Object.keys(clickMap).forEach(k => {
             let dir = clickMap[k];
             d3.select(`.directions ${dir}`)
+                .on("touchstart", (d, i, g) => {
+                    d3.event.preventDefault();
+                    rotateFn(k);
+                    update();
+                })
                 .on("click", (d, i, g) => {
                     rotateFn(k);
                     update();
                 });
         });
 
+        const canvas = document.querySelectorAll("#c");
+        //blah.main(canvas[0], vs, fs);
+
     });
-    console.log(canvas);
 });
