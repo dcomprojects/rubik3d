@@ -10,7 +10,7 @@ body {
   display: grid;
   grid-template-columns: 1fr;
   grid-gap: 5px;
-  grid-template-rows: 4fr 1fr;
+  grid-template-rows: 3fr 1fr;
   grid-template-areas:
     "m_u"
     "m_l";

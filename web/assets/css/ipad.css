@@ -1,0 +1,7 @@
+.wrapper {
+    min-height: -webkit-fill-available;
+    min-height: -moz-available;
+    height: -webkit-fill-available;
+    height: -moz-available;
+    height: calc(var(--vh, 1vh) * 100);
+  }

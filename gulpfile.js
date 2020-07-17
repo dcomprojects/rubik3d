@@ -125,6 +125,7 @@ function processCss() {
       'web/assets/css/main.css',
       'web/assets/css/main2.css',
       'web/assets/css/main-portrait.css',
+      'web/assets/css/ipad.css',
       'web/assets/css/fontawesome-all.min.css'
     ]))
     .pipe(cleancss())

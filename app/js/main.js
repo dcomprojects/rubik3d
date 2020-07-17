@@ -53,14 +53,6 @@ onload().then(() => {
         document.documentElement.style.setProperty('--vh', `${vh}px`);
     });
 
-    window.globalShow = () => {
-        console.log("Hello");
-    };
-
-    window.globalHide = () => {
-        console.log("Hello Hide");
-    };
-
     blah.main(canvas[0], vs, fs);
 
     d3.text("default3.csv").then((d) => {
@@ -125,40 +117,24 @@ onload().then(() => {
             });
         };
 
-        d3.select('.directions .left')
-            .on("click", (d, i, g) => {
-                rotateFn("orange");
-                update();
-            });
+        let clickMap = {
+            "white": ".up",
+            "red": ".right",
+            "green": ".front",
+            "blue": ".back",
+            "yellow": ".down",
+            "orange": ".left",
+        };
 
-        d3.select('.directions .right')
-            .on("click", (d, i, g) => {
-                rotateFn("red");
-                update();
-            });
+        Object.keys(clickMap).forEach(k => {
+            let dir = clickMap[k];
+            d3.select(`.directions ${dir}`)
+                .on("click", (d, i, g) => {
+                    rotateFn(k);
+                    update();
+                });
+        });
 
-        d3.select('.directions .front')
-            .on("click", (d, i, g) => {
-                rotateFn("green");
-                update();
-            });
-
-        d3.select('.directions .up')
-            .on("click", (d, i, g) => {
-                rotateFn("white");
-                update();
-            });
-
-        d3.select('.directions .down')
-            .on("click", (d, i, g) => {
-                rotateFn("yellow");
-                update();
-            });
-        d3.select('.directions .back')
-            .on("click", (d, i, g) => {
-                rotateFn("blue");
-                update();
-            });
     });
     console.log(canvas);
 });
