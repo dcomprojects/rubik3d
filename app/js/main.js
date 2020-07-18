@@ -1,6 +1,6 @@
 const blah = require("./blah.js");
 const somed3 = require("./somed3");
-const Cube = require("./cube/cube5");
+const Cube = require("./cube/cube");
 const parser = require('./cube/sequenceParser');
 const d3 = require("d3");
 const {

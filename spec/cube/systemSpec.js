@@ -1,10 +1,10 @@
 describe("System Test", function () {
     var parser = require('../../app/js/cube/sequenceParser');
-    var Cube5 = require('../../app/js/cube/cube5');
+    var Cube = require('../../app/js/cube/cube');
     var fs = require("fs");
   
     beforeEach(function () {
-      cube = new Cube5(fs.readFileSync("resources/default3.csv", {
+      cube = new Cube(fs.readFileSync("resources/default3.csv", {
         encoding: "utf8"
       }));
     });
