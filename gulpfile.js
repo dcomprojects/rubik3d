@@ -11,6 +11,7 @@ const workboxBuild = require('workbox-build');
 
 
 const browserify = require('browserify');
+const babelify = require('babelify');
 const source = require('vinyl-source-stream');
 const buffer = require('vinyl-buffer');
 const sourcemaps = require('gulp-sourcemaps');
@@ -47,7 +48,17 @@ function processAnalysis3() {
     debug: true
   });
 
-  return b.bundle()
+  var b2 = browserify({
+    entries: './app/js2/main.js',
+    transform: ['babelify'],
+    debug: true
+  })
+  .transform(babelify.configure({
+    presets: ["@babel/preset-env"]
+  }));
+
+
+  b.bundle()
     .pipe(source('app.js'))
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true}))
@@ -56,6 +67,17 @@ function processAnalysis3() {
         .on('error', log.error)
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('./build/'));
+
+  return b2.bundle()
+    .pipe(source('app2.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({loadMaps: true}))
+        // Add transformation tasks to the pipeline here.
+        .pipe(uglify())
+        .on('error', log.error)
+    .pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest('./build/'));
+
 }
 
 // Clean "build" directory

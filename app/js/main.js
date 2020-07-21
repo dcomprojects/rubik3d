@@ -159,8 +159,8 @@ onload().then(() => {
                 });
         });
 
-        const canvas = document.querySelectorAll("#c");
-        blah.main(canvas[0], vs, fs);
+        //const canvas = document.querySelectorAll("#c");
+        //blah.main(canvas[0], vs, fs);
 
     });
 });
