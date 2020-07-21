@@ -4,7 +4,7 @@
   "description": "",
   "main": "gulpfile.js",
   "scripts": {
-    "test": "jasmine"
+    "test": "jasmine; ava"
   },
   "keywords": [],
   "author": "",
@@ -25,10 +25,12 @@
     "workbox-build": "^3.6.3"
   },
   "dependencies": {
+    "ava": "^3.10.1",
     "babelify": "^10.0.0",
     "browserify": "^16.5.1",
     "core-js": "^3.6.4",
     "d3": "^5.15.1",
+    "esm": "^3.2.25",
     "gl-matrix": "^3.3.0",
     "gulp-cli": "^2.2.0",
     "gulp-sourcemaps": "^2.6.5",
@@ -38,5 +40,13 @@
     "three": "^0.118.3",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
+  },
+  "ava": {
+    "files": [
+      "./tests/*.js"
+    ],
+    "require": [
+      "esm"
+    ]
   }
 }
