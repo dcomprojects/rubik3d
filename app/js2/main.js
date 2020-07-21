@@ -1,5 +1,12 @@
 import * as THREE from 'three';
 
+const onload = () => {
+    return new Promise(function (resolve, reject) {
+        window.addEventListener('load', resolve);
+    });
+};
+
+onload().then(() => {
 const divCube = document.querySelector("div.cube");
 
 var scene = new THREE.Scene();
@@ -28,3 +35,4 @@ var animate = function () {
 };
 
 animate();
+});

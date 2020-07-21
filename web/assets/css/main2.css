@@ -52,11 +52,11 @@ body {
 
 .cube {
   grid-area: cube;
+  height: 99%;
 }
 .info {
   grid-area: info;
 }
-
 
 .white {
   grid-area: w;
