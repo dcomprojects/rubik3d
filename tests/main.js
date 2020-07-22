@@ -1,18 +1,31 @@
 const test = require('ava');
-const c = require('../app/js2/cube2');
+const glm = require('gl-matrix');
 
-test('foo', t => {
-    console.log(c.Cube);
-    let cube = new c.Cube();
-    t.is(cube.yeah("blah"), "blah");
+test.beforeEach(t => {
+
+    const c = require('../app/js2/cube');
+    const fs = require("fs");
+
+	t.context = {
+		cube: new c.Cube(fs.readFileSync("resources/default3.csv", {encoding: "utf8"})) 
+	};
 });
 
-test('blah', t => {
-    let fn = c.another;
-    t.is(fn(3), 9);
-});
+test('initialize cube', t => {
 
-test('bar', async t => {
-	const bar = Promise.resolve('bar');
-	t.is(await bar, 'bar');
+    t.true(glm.vec3.equals(
+        t.context.cube.get("ogy").position2(), 
+        glm.vec3.fromValues(-1, -1, -1)
+        )); 
+    t.true(glm.vec3.equals(
+        t.context.cube.get("oy").position2(), 
+        glm.vec3.fromValues(-1, 0, -1)
+        )); 
+    t.true(glm.vec3.equals(
+        t.context.cube.get("oby").position2(), 
+        glm.vec3.fromValues(-1, 1, -1)
+        )); 
+
+
+
 });
