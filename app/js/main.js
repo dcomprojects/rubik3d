@@ -35,7 +35,7 @@ void main() {
 const onload = () => {
     return new Promise(function (resolve, reject) {
 
-        window.addEventListener('load', resolve);
+        //window.addEventListener('load', resolve);
 
         //window.onload = resolve;
     });

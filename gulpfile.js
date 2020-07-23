@@ -38,16 +38,11 @@ gulp.task('processJs', processJs);
 
 function watchJs() {
   gulp.watch('web/assets/js/*.js', processJs);
-  gulp.watch('app/js/*.js', processAnalysis3);
+  gulp.watch('app/js2/**/*.js', processAnalysis3);
 }
 
 function processAnalysis3() {
   // set up the browserify instance on a task basis
-  var b = browserify({
-    entries: './app/js/main.js',
-    debug: true
-  });
-
   var b2 = browserify({
     entries: './app/js2/main.js',
     transform: ['babelify'],
@@ -56,17 +51,6 @@ function processAnalysis3() {
   .transform(babelify.configure({
     presets: ["@babel/preset-env"]
   }));
-
-
-  b.bundle()
-    .pipe(source('app.js'))
-    .pipe(buffer())
-    .pipe(sourcemaps.init({loadMaps: true}))
-        // Add transformation tasks to the pipeline here.
-        .pipe(uglify())
-        .on('error', log.error)
-    .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('./build/'));
 
   return b2.bundle()
     .pipe(source('app2.js'))
@@ -77,7 +61,6 @@ function processAnalysis3() {
         .on('error', log.error)
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('./build/'));
-
 }
 
 // Clean "build" directory
@@ -121,7 +104,7 @@ function buildSw() {
       '**',
     ],
     globIgnores: [
-      'sw.js', 'app.js'
+      'sw.js', 'app2.js'
     ]
   }).then(resources => {
     console.log(`Injected ${resources.count} resources for precaching, ` +
