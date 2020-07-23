@@ -95,7 +95,7 @@ const render = (cube) => {
 
     Object.keys(clickMap).forEach(k => {
         let dir = clickMap[k];
-        select(`.directions ${dir}`)
+        select(`.faces .${k}`)
             .on("touchstart", (d, i, g) => {
                 event.preventDefault();
                 rotateFn(k);

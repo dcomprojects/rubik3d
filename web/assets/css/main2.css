@@ -9,8 +9,8 @@ body {
   height: 100vh;
   display: grid;
   grid-template-columns: 1fr;
-  grid-gap: 10px;
-  grid-template-rows: 60% 1fr;
+  grid-gap: 5px;
+  grid-template-rows: 60% 40%;
   grid-template-areas:
     "m_u"
     "m_l";
@@ -21,41 +21,38 @@ body {
 .m_u {
   grid-area: m_u;
   display: grid;
-  grid-template-columns: 25% 4fr 2fr;
+  grid-template-columns: 1fr;
   grid-gap: 1px;
   grid-template-areas:
-    "info cube faces";
-  height: 98%
+    "cube";
+  height: 90%
 }
 
 .m_l {
   display: grid; 
   grid-template-columns: 1fr;
+  grid-template-rows: 98%;
   grid-gap: 1px;
   grid-template-areas:
     "controls";
-  height: 98%
+  xheight: 98%;
 }
 
 .faces {
   grid-area: faces;
   display: grid;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: 33% 33%;
   grid-gap: 3px;
-  grid-template-rows: 33% 33% 33%;
+  grid-template-rows: 50% 50%; 
   grid-template-areas:
-    "w r"
-    "g b"
-    "o y";
-  height: 99%;
+    "w r g"
+    "b o y";
+  height: 90%;
 }
 
 .cube {
   grid-area: cube;
   height: 99%;
-}
-.info {
-  grid-area: info;
 }
 
 .white {
@@ -97,9 +94,12 @@ body {
   grid-template-columns: 1fr 4fr 1fr;
   grid-gap: 5px;
   grid-template-areas:
-    "il directions ir";
+    "il faces ir";
 }
 
+.invert {
+  height: 95%;
+}
 .invert_left {
   grid-area: il;
 }
@@ -107,47 +107,6 @@ body {
   grid-area: ir;
 }
 
-
-.directions {
-  grid-area: directions;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-gap: 2px;
-  grid-template-rows: 50% auto;
-  grid-template-areas:
-    "left front right"
-    "back up down";
-}
-
-.left {
-  grid-area: left;
-}
-
-.right {
-  grid-area: right;
-}
-
-.front {
-  grid-area: front;
-}
-
-.back {
-  grid-area: back;
-}
-
-.up {
-  grid-area: up;
-}
-
-.down {
-  grid-area: down;
-}
-
-#c {
-  width: 100%;
-  height: 100%;
-  color: cyan;
-}
 
 /* BACKGROUND TRANSITIONS */
 /* Fade */
