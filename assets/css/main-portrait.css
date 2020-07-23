@@ -1,1 +1,1 @@
-.faces{display:none}.wrapper{min-height:-webkit-fill-available;min-height:-moz-available;height:calc(var(--vh,1vh) * 100);height:-webkit-fill-available;height:-moz-available}.m_u{grid-template-columns:1fr;grid-template-rows:1fr 4fr;grid-template-areas:"info" "cube"}
+.xfaces{display:none}.wrapper{min-height:-webkit-fill-available;min-height:-moz-available;height:calc(var(--vh,1vh) * 100);height:-webkit-fill-available;height:-moz-available}.xm_u{grid-template-columns:1fr;grid-template-rows:1fr 4fr;grid-template-areas:"info" "cube"}
