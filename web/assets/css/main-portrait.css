@@ -1,4 +1,4 @@
-.faces {
+.xfaces {
     display: none;
 }
 
@@ -10,7 +10,7 @@
   height: -moz-available;
 }
 
-.m_u {
+.xm_u {
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 4fr;
     grid-template-areas: 
