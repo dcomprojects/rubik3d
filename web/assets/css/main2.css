@@ -3,14 +3,15 @@ body {
   padding: 0px;
   font-family: Helvetica;
   margin: 0px;
+  height: 100vh;
 }
 
 .wrapper {
-  height: 100vh;
+  height: 100%;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: auto;
   grid-gap: 5px;
-  grid-template-rows: 60% 40%;
+  grid-template-rows: 60% 1fr;
   grid-template-areas:
     "m_u"
     "m_l";
@@ -21,38 +22,41 @@ body {
 .m_u {
   grid-area: m_u;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: auto;
   grid-gap: 1px;
   grid-template-areas:
     "cube";
-  height: 90%
 }
 
 .m_l {
+  height: 100%;
   display: grid; 
-  grid-template-columns: 1fr;
-  grid-template-rows: 98%;
+  grid-template-columns: auto;
+  grid-template-rows: auto;
   grid-gap: 1px;
   grid-template-areas:
     "controls";
-  xheight: 98%;
 }
 
 .faces {
+  height: auto;
   grid-area: faces;
   display: grid;
-  grid-template-columns: 33% 33%;
+  grid-template-columns: 1fr 1fr 1fr;
   grid-gap: 3px;
-  grid-template-rows: 50% 50%; 
+  grid-template-rows: 1fr 1fr; 
   grid-template-areas:
     "w r g"
     "b o y";
-  height: 90%;
 }
 
 .cube {
   grid-area: cube;
-  height: 99%;
+}
+
+.cube_face {
+  display: grid;
+  place-items: center;
 }
 
 .white {
@@ -89,6 +93,7 @@ body {
 }
 
 .controls {
+  height: 100%;
   grid-area: controls;
   display: grid;
   grid-template-columns: 1fr 4fr 1fr;
@@ -98,7 +103,7 @@ body {
 }
 
 .invert {
-  height: 95%;
+  height: auto;
 }
 .invert_left {
   grid-area: il;

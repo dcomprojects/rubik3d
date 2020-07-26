@@ -18,10 +18,13 @@ function buildData(inData) {
 }
 
 function drawCube(width, height, inData) {
-    const svg = d3.create("svg")
-        .attr("viewBox", [0, 0, width, height]);
 
     let dim = d3.min([width, height]);
+
+    const svg = d3.create("svg")
+        .attr("viewBox", [0, 0, dim, dim])
+        .attr("height", "100%");
+
 
     let pieceGroup = svg.append("g")
         .selectAll("g")
