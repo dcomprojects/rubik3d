@@ -1,6 +1,9 @@
 import * as THREE from 'three';
+import {
+    vec3
+} from "gl-matrix";
 
-let render3d = () => {
+let render3d = (cube) => {
 
     const divCube = document.querySelector("div.cube");
 
@@ -12,7 +15,7 @@ let render3d = () => {
 
     divCube.appendChild(renderer.domElement);
 
-    var geometry = new THREE.BoxGeometry(0.9, 0.9, 0.9);
+    var geometry = new THREE.BoxGeometry(0.98, 0.98, 0.98);
     var material = new THREE.MeshBasicMaterial({
         //color: 0x00ff00
         vertexColors: THREE.FaceColors
@@ -20,6 +23,64 @@ let render3d = () => {
 
     let group = new THREE.Group();
 
+
+    let fn = (c) => {
+
+        let g = geometry.clone();
+        console.log(c.colorFaces);
+        Object.keys(c.colorFaces).forEach(k => {
+            let cf = c.colorFaces[k];
+
+            g.faces.forEach(f => {
+                let dot = vec3.dot(vec3.fromValues(
+                    f.normal.x,
+                    f.normal.y,
+                    f.normal.z), cf.vector);
+
+                if (dot === 1) {
+                    f.color.setColorName(k);
+                } else if (dot === -1) {
+                    f.color.setColorName("black");
+                }
+
+            });
+        });
+
+        let m = new THREE.Mesh(g, material);
+        m.position.set(
+            c.position2()[0],
+            c.position2()[1],
+            c.position2()[2]);
+        group.add(m);
+    };
+
+    let pieces = {};
+    let top = cube.getFace("white");
+    let bottom = cube.getFace("yellow");
+    let left = cube.getFace("orange");
+    let right = cube.getFace("red");
+    let front = cube.getFace("green");
+    let back = cube.getFace("blue");
+
+    [top, bottom, left, right, front, back].forEach(s => {
+        s.forEach(p => {
+            pieces[p.key] = p;
+        });
+    });
+
+    Object.keys(pieces).forEach(k => {
+        fn(pieces[k]);
+    });
+
+
+    //top is cube.getFace("white") 9 pieces 
+    //left is cube.getFace("orange") 3 pieces 
+    //right is cube.getFace("red") 3 pieces
+    //bottom is cube.getFace("yellow") 9 pieces 
+    //front is cube.getFace("green") 1 piece
+    //back is cube.getFace("blue") 1 piece
+
+    /*
     for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
             for (let k = 0; k < 3; k++) {
@@ -36,6 +97,7 @@ let render3d = () => {
             }
         }
     }
+    */
 
     scene.add(group);
 

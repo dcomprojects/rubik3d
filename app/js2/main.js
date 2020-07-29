@@ -27,8 +27,8 @@ onload().then(() => {
 		console.log(Cube);
 		let cube = new Cube(d);
 		render(cube);
+		render3d(cube);
 	});
 
-	render3d();
 
 });
