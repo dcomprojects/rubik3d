@@ -44,7 +44,11 @@ function watchJs() {
 function processAnalysis3() {
   // set up the browserify instance on a task basis
   var b2 = browserify({
-    entries: './app/js2/main.js',
+    entries: [
+      './app/js2/main.js',
+      './node_modules/three/examples/jsm/controls/OrbitControls.js',
+  ],
+
     transform: ['babelify'],
     debug: true
   })

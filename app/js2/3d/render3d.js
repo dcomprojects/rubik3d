@@ -1,7 +1,13 @@
 import * as THREE from 'three';
+
 import {
     vec3
 } from "gl-matrix";
+
+import {
+    OrbitControls
+} from 'three/examples/jsm/controls/OrbitControls';
+
 
 let render3d = (cube) => {
 
@@ -17,12 +23,10 @@ let render3d = (cube) => {
 
     var geometry = new THREE.BoxGeometry(0.98, 0.98, 0.98);
     var material = new THREE.MeshBasicMaterial({
-        //color: 0x00ff00
         vertexColors: THREE.FaceColors
     });
 
     let group = new THREE.Group();
-
 
     let fn = (c) => {
 
@@ -73,46 +77,19 @@ let render3d = (cube) => {
     });
 
 
-    //top is cube.getFace("white") 9 pieces 
-    //left is cube.getFace("orange") 3 pieces 
-    //right is cube.getFace("red") 3 pieces
-    //bottom is cube.getFace("yellow") 9 pieces 
-    //front is cube.getFace("green") 1 piece
-    //back is cube.getFace("blue") 1 piece
-
-    /*
-    for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++) {
-            for (let k = 0; k < 3; k++) {
-                let g = geometry.clone();
-
-                g.faces.forEach(f => {
-                    f.color.setRGB(Math.random(),
-                        Math.random(), Math.random());
-                });
-
-                let cube = new THREE.Mesh(g, material);
-                cube.position.set(i - 1, j - 1, k - 1);
-                group.add(cube);
-            }
-        }
-    }
-    */
-
     scene.add(group);
 
     camera.position.z = 5;
 
-    var animate = function () {
-        requestAnimationFrame(animate);
-
-        group.rotation.x += 0.01;
-        group.rotation.y += 0.01;
-
+    let render = () => {
         renderer.render(scene, camera);
     };
 
-    animate();
+    let orbit = new OrbitControls(camera, renderer.domElement);
+    orbit.update();
+    orbit.addEventListener('change', render);
+
+    render();
 };
 
 export {
