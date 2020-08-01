@@ -9,6 +9,7 @@ import {
 } from 'three/examples/jsm/controls/OrbitControls';
 
 
+
 let render3d = (cube) => {
 
     const divCube = document.querySelector("div.cube");
@@ -21,41 +22,47 @@ let render3d = (cube) => {
 
     divCube.appendChild(renderer.domElement);
 
-    var geometry = new THREE.BoxGeometry(0.98, 0.98, 0.98);
-    var material = new THREE.MeshBasicMaterial({
-        vertexColors: THREE.FaceColors
-    });
+    var pieceGeom = new THREE.BoxGeometry(0.98, 0.98, 0.98);
 
-    let group = new THREE.Group();
+    let cubeGroup = new THREE.Group();
+
+    pieceGeom.faces.forEach((f, i) => {
+        f.materialIndex = i;
+    });
 
     let fn = (c) => {
 
-        let g = geometry.clone();
         console.log(c.colorFaces);
-        Object.keys(c.colorFaces).forEach(k => {
-            let cf = c.colorFaces[k];
 
-            g.faces.forEach(f => {
+        let faceMaterials = [];
+
+        pieceGeom.faces.forEach(f => {
+
+            let fmat = new THREE.MeshBasicMaterial({
+                color: new THREE.Color("black")
+            });
+
+            faceMaterials.push(fmat);
+
+            Object.keys(c.colorFaces).forEach(k => {
+                let cf = c.colorFaces[k];
                 let dot = vec3.dot(vec3.fromValues(
                     f.normal.x,
                     f.normal.y,
                     f.normal.z), cf.vector);
 
                 if (dot === 1) {
-                    f.color.setColorName(k);
-                } else if (dot === -1) {
-                    f.color.setColorName("black");
+                    fmat.color.setColorName(k);
                 }
-
             });
         });
 
-        let m = new THREE.Mesh(g, material);
+        let m = new THREE.Mesh(pieceGeom, faceMaterials);
         m.position.set(
             c.position2()[0],
             c.position2()[1],
             c.position2()[2]);
-        group.add(m);
+        cubeGroup.add(m);
     };
 
     let pieces = {};
@@ -77,7 +84,7 @@ let render3d = (cube) => {
     });
 
 
-    scene.add(group);
+    scene.add(cubeGroup);
 
     camera.position.z = 5;
 
