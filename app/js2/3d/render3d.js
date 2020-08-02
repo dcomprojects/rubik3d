@@ -5,8 +5,8 @@ import {
 } from "gl-matrix";
 
 import {
-    OrbitControls
-} from 'three/examples/jsm/controls/OrbitControls';
+    TrackballControls
+} from 'three/examples/jsm/controls/TrackballControls';
 
 
 
@@ -87,14 +87,21 @@ let render3d = (cube) => {
     scene.add(cubeGroup);
 
     camera.position.z = 5;
+    camera.position.y = 1;
+
+    let orbit = new TrackballControls(camera, renderer.domElement);
+    orbit.rotateSpeed = 10;
 
     let render = () => {
+        requestAnimationFrame(render);
+        orbit.update();
         renderer.render(scene, camera);
     };
 
-    let orbit = new OrbitControls(camera, renderer.domElement);
-    orbit.update();
-    orbit.addEventListener('change', render);
+    //orbit.handleResize();
+    //orbit.addEventListener('change', render);
+    //camera.addEventListener('change', render);
+
 
     render();
 };
