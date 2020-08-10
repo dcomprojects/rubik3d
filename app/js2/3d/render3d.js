@@ -7,6 +7,9 @@ import {
 import {
     TrackballControls
 } from 'three/examples/jsm/controls/TrackballControls';
+import {
+    Matrix4
+} from 'three';
 
 
 
@@ -30,7 +33,7 @@ let render3d = (cube) => {
         f.materialIndex = i;
     });
 
-    let fn = (c) => {
+    let fn = (c, pMap) => {
 
         console.log(c.colorFaces);
 
@@ -46,6 +49,7 @@ let render3d = (cube) => {
 
             Object.keys(c.colorFaces).forEach(k => {
                 let cf = c.colorFaces[k];
+
                 let dot = vec3.dot(vec3.fromValues(
                     f.normal.x,
                     f.normal.y,
@@ -63,6 +67,12 @@ let render3d = (cube) => {
             c.position2()[1],
             c.position2()[2]);
         cubeGroup.add(m);
+        pMap[c.key] = m;
+
+        Object.keys(c.colorFaces).forEach(k => {
+            console.log(`Expected color ${k}`);
+            if (k in groups) {}
+        });
     };
 
     let pieces = {};
@@ -73,16 +83,22 @@ let render3d = (cube) => {
     let front = cube.getFace("green");
     let back = cube.getFace("blue");
 
+    let groups = {};
+    ["white", "yellow", "orange", "red", "green", "blue"].forEach(c => {
+        groups[c] = new THREE.Group();
+        scene.add(groups[c]);
+    });
+
     [top, bottom, left, right, front, back].forEach(s => {
         s.forEach(p => {
             pieces[p.key] = p;
         });
     });
 
+    let pMap = {};
     Object.keys(pieces).forEach(k => {
-        fn(pieces[k]);
+        fn(pieces[k], pMap);
     });
-
 
     scene.add(cubeGroup);
 
@@ -98,10 +114,87 @@ let render3d = (cube) => {
         renderer.render(scene, camera);
     };
 
-    //orbit.handleResize();
-    //orbit.addEventListener('change', render);
-    //camera.addEventListener('change', render);
+    const rotateMap = {
+        "red": new THREE.Vector3(1, 0, 0),
+        "white": new THREE.Vector3(0, 0, 1),
+        "blue": new THREE.Vector3(0, 1, 0),
+        "orange": new THREE.Vector3(-1, 0, 0),
+        "yellow": new THREE.Vector3(0, 0, -1),
+        "green": new THREE.Vector3(0, -1, 0)
+    };
 
+    const rFn = (face, rad) => {
+
+        let axis = rotateMap[face]; 
+
+        cube.getFace(face).forEach(p => {
+
+            let pos = pMap[p.key].position.clone();
+
+            let m1 = new THREE.Matrix4().makeTranslation(-pos.x, -pos.y, -pos.z);
+            let r1 = new THREE.Matrix4().makeRotationAxis(
+                axis,
+                rad
+                //-Math.PI / 2.0
+            );
+            let m2 = new THREE.Matrix4().makeTranslation(pos.x, pos.y, pos.z);
+
+            let m = new Matrix4();
+            m.multiplyMatrices(r1, m2);
+            m.multiplyMatrices(m, m1);
+            pMap[p.key].applyMatrix4(m);
+
+        });
+    };
+
+    cube.onRotate((face) => {
+        rFn(face, -Math.PI / 2.0);
+    });
+
+    cube.onRotateReverse((face) => {
+        rFn(face, Math.PI / 2.0);
+    });
+
+    window.addEventListener('keydown', (e) => {
+
+        console.log(`keyCode: ${e.keyCode}`);
+        const keyMap = {
+            82: {
+                "axis": new THREE.Vector3(1, 0, 0),
+                "face": "red"
+            },
+            87: {
+                "axis": new THREE.Vector3(0, 0, 1),
+                "face": "white"
+            },
+
+        };
+
+        if (!(e.keyCode in keyMap)) {
+            return;
+        }
+
+        let axis = keyMap[e.keyCode].axis;
+        let face = keyMap[e.keyCode].face;
+
+        cube.getFace(face).forEach(p => {
+
+            let pos = pMap[p.key].position.clone();
+
+            let m1 = new THREE.Matrix4().makeTranslation(-pos.x, -pos.y, -pos.z);
+            let r1 = new THREE.Matrix4().makeRotationAxis(
+                axis,
+                Math.PI / 2.0
+            );
+            let m2 = new THREE.Matrix4().makeTranslation(pos.x, pos.y, pos.z);
+
+            let m = new Matrix4();
+            m.multiplyMatrices(r1, m2);
+            m.multiplyMatrices(m, m1);
+            pMap[p.key].applyMatrix4(m);
+
+        });
+    }, true);
 
     render();
 };

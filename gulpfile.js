@@ -61,7 +61,7 @@ function processAnalysis3() {
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true}))
         // Add transformation tasks to the pipeline here.
-        .pipe(uglify())
+        //.pipe(uglify())
         .on('error', log.error)
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('./build/'));

@@ -239,9 +239,22 @@ Cube.prototype.toString = function() {
     return ret;
 };
 
+Cube.prototype.onRotate = function(fn) {
+    this.rotateCallBack = fn;
+};
+
+Cube.prototype.onRotateReverse = function(fn) {
+    this.rotateReverseCallBack = fn;
+};
+
 Cube.prototype.rotate = function(face) {
 
     console.log(`Rotate: ${face}`);
+
+    if (this.rotateCallBack) {
+        this.rotateCallBack(face);
+    }
+
     for (const k of this.pieces.keys()) {
 
         let p = this.pieces.get(k); 
@@ -259,6 +272,10 @@ Cube.prototype.rotate = function(face) {
 Cube.prototype.rotateReverse = function(face) {
 
     console.log(`Rotate: ${face}`);
+    if (this.rotateReverseCallBack) {
+        this.rotateReverseCallBack(face);
+    }
+
     for (const k of this.pieces.keys()) {
 
         let p = this.pieces.get(k); 
