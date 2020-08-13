@@ -156,6 +156,18 @@ Piece.prototype.rotate = function (m) {
     mat4.mul(this.transform, m, this.transform);
 };
 
+Piece.prototype.isEdge = function () {
+    return this.colors.length == 2;
+};
+
+Piece.prototype.isCenter = function () {
+    return this.colors.length == 1;
+};
+
+Piece.prototype.isCorner = function () {
+    return this.colors.length == 3;
+};
+
 Piece.prototype.toString = function() {
 
     return `
