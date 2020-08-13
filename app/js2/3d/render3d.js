@@ -11,9 +11,16 @@ import {
     Matrix4
 } from 'three';
 
+import {
+    scan,
+    descending,
+    min,
+    ascending
+} from 'd3';
 
 
-let render3d = (cube) => {
+
+let render3d = (cube, changeHandler) => {
 
     const divCube = document.querySelector("div.cube");
 
@@ -66,6 +73,9 @@ let render3d = (cube) => {
             c.position2()[0],
             c.position2()[1],
             c.position2()[2]);
+        m.userData = {
+            piece: c
+        };
         cubeGroup.add(m);
         pMap[c.key] = m;
 
@@ -106,7 +116,9 @@ let render3d = (cube) => {
     camera.position.y = 1;
 
     let orbit = new TrackballControls(camera, renderer.domElement);
-    orbit.rotateSpeed = 10;
+    orbit.rotateSpeed = 5;
+
+    orbit.addEventListener("change", changeHandler);
 
     let render = () => {
         requestAnimationFrame(render);
@@ -125,7 +137,7 @@ let render3d = (cube) => {
 
     const rFn = (face, rad) => {
 
-        let axis = rotateMap[face]; 
+        let axis = rotateMap[face];
 
         cube.getFace(face).forEach(p => {
 
@@ -154,6 +166,92 @@ let render3d = (cube) => {
     cube.onRotateReverse((face) => {
         rFn(face, Math.PI / 2.0);
     });
+
+    /*
+    const blah = document.querySelector('#cube');
+
+    blah.addEventListener('click', event => {
+
+    });
+    */
+
+    const orientation = {
+        domElement: renderer.domElement,
+        rayCaster: new THREE.Raycaster(),
+    };
+
+    orientation.calculate = function () {
+
+        this.rayCaster.setFromCamera({
+            x: 0,
+            y: 0
+        }, camera);
+
+        let a = this.rayCaster.intersectObjects(cubeGroup.children);
+
+        let centers = cubeGroup.children.filter(e => e.userData.piece.isCenter());
+        let distances = centers.map(e => e.position.distanceToSquared(camera.position));
+
+        const blah = {};
+        let front = centers[scan(distances)];
+        let back = centers[scan(distances, descending)];
+
+        centers.forEach(e => blah[e.userData.piece.key] =
+            new THREE.Vector3().subVectors(
+                e.position.clone().applyMatrix4(camera.matrixWorldInverse),
+                front.position.clone().applyMatrix4(camera.matrixWorldInverse))
+            .normalize());
+
+        let left = centers[scan(centers, (a, b) => {
+            return ascending(
+                blah[a.userData.piece.key].x,
+                blah[b.userData.piece.key].x);
+        })];
+
+        let right = centers[scan(centers, (a, b) => {
+            return descending(
+                blah[a.userData.piece.key].x,
+                blah[b.userData.piece.key].x);
+        })];
+
+        let bottom = centers[scan(centers, (a, b) => {
+            return ascending(
+                blah[a.userData.piece.key].y,
+                blah[b.userData.piece.key].y);
+        })];
+
+        let top = centers[scan(centers, (a, b) => {
+            return descending(
+                blah[a.userData.piece.key].y,
+                blah[b.userData.piece.key].y);
+        })];
+
+        console.log(`Front: ${front.userData.piece.key}`);
+        console.log(`Left: ${left.userData.piece.key}`);
+        console.log(`Back: ${back.userData.piece.key}`);
+        console.log(`Right: ${right.userData.piece.key}`);
+        console.log(`Top: ${top.userData.piece.key}`);
+        console.log(`Bottom: ${bottom.userData.piece.key}`);
+
+        const colorMap = {
+            "g": "green",
+            "o": "orange",
+            "b": "blue",
+            "r": "red",
+            "w": "white",
+            "y": "yellow"
+        };
+
+        return {
+            "front": colorMap[front.userData.piece.key],
+            "left": colorMap[left.userData.piece.key],
+            "back": colorMap[back.userData.piece.key],
+            "right": colorMap[right.userData.piece.key],
+            "up": colorMap[top.userData.piece.key],
+            "down": colorMap[bottom.userData.piece.key]
+        };
+
+    }.bind(orientation);
 
     window.addEventListener('keydown', (e) => {
 
@@ -197,8 +295,36 @@ let render3d = (cube) => {
     }, true);
 
     render();
+
+    return orientation.calculate;
 };
 
+function CubeHandler3d(cube) {
+    this.cube = cube;
+}
+
+CubeHandler3d.prototype.render3d = function(fn) {
+    this.orientationCalculator = render3d(this.cube, fn);
+}; 
+
+
+CubeHandler3d.prototype.getOrientationMap = function() {
+
+    return this.orientationCalculator();
+
+    /*
+    return {
+        "up": "white",
+        "front": "green",
+        "left": "orange",
+        "right": "red",
+        "down": "yellow",
+        "back": "blue"
+    };
+    */
+}; 
+
+
 export {
-    render3d
+    CubeHandler3d
 };

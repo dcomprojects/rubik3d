@@ -2,7 +2,7 @@
 import {event, select} from 'd3';
 import {drawCube} from './somed3';
 
-const render = (cube) => {
+const render = (cube, orientation) => {
 
     let forward = (color) => {
         cube.rotate(color);
@@ -48,28 +48,38 @@ const render = (cube) => {
     */
 
 
-    let renderCube = () => {
+    let renderCube = (orientation) => {
         /*
         let scramble = parser.SequenceParser("B L2 B' D' U' L' D' L2 B D B F' L2 R U' B2 F' D R2 B F D2 L R' B' L' F2 D F D'");
         scramble(cube);
         */
 
+        /*
         [
             "white", "red", "green",
             "blue", "yellow", "orange",
-        ].forEach(color => {
+        ]
+        */
 
+        const svgs = {};
+
+        Object.keys(orientation)
+        .forEach(dir => {
+
+            let color = orientation[dir];
             let faceColors = cube.getFaceColors(color);
-            const face = document.querySelector(`.faces .${color}`);
-            const svg = drawCube(face.clientWidth, face.clientHeight, faceColors);
-            console.log(svg);
-            face.append(svg);
+
+            const face = select(`.faces .f_${dir}`).classed(color, true);
+            const svg = drawCube(face.node().clientWidth, face.node().clientHeight, faceColors);
+            face.node().append(svg);
+            svgs[color] = svg;
 
         });
 
+        return svgs;
     };
 
-    renderCube();
+    let svgs = renderCube(orientation);
 
     let update = () => {
         [
@@ -106,8 +116,37 @@ const render = (cube) => {
                 update();
             });
     });
+
+    return svgs;
+};
+
+function CubeHandler2d (cube) {
+    this.cube = cube;
+}
+
+CubeHandler2d.prototype.render = function(orientation) {
+    this.svgs = render(this.cube, orientation);
+};
+
+CubeHandler2d.prototype.setFaces = function(orientation) {
+
+    Object.keys(orientation).forEach(dir => {
+        const color = orientation[dir];
+        select(`.faces .${color}`)
+            .classed(`.${color}`, false)
+            .select("svg")
+            .remove();
+    });
+
+    Object.keys(orientation).forEach(dir => {
+        const color = orientation[dir];
+        const face = select(`.faces .f_${dir}`).classed(color, true);
+        const svg = this.svgs[color];
+        face.node().append(svg);
+    });
+
 };
 
 export {
-    render
+    CubeHandler2d
 };

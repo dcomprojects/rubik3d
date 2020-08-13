@@ -46,8 +46,8 @@ body {
   grid-gap: 1px;
   grid-template-rows: 1fr 1fr; 
   grid-template-areas:
-    "w r g"
-    "b o y";
+    "u r f"
+    "b l d";
 }
 
 .cube {
@@ -60,23 +60,23 @@ body {
   margin: 1px;
 }
 
-.white {
-  grid-area: w;
+.f_up {
+  grid-area: u;
 }
-.red {
+.f_right {
   grid-area: r;
 }
-.green {
-  grid-area: g;
+.f_front {
+  grid-area: f;
 }
-.blue {
+.f_back {
   grid-area: b;
 }
-.orange {
-  grid-area: o;
+.f_left {
+  grid-area: l;
 }
-.yellow {
-  grid-area: y;
+.f_down {
+  grid-area: d;
 }
 
 .box {

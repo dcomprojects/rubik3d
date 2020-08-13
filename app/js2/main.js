@@ -1,7 +1,7 @@
 import {Cube} from "./cube";
-import {render} from "./2d/render";
+import {CubeHandler2d} from "./2d/render";
 import {text} from 'd3';
-import {render3d} from "./3d/render3d";
+import {CubeHandler3d} from "./3d/render3d";
 
 const onload = () => {
 	return new Promise(function (resolve, reject) {
@@ -26,9 +26,20 @@ onload().then(() => {
 	text("default3.csv").then((d) => {
 		console.log(Cube);
 		let cube = new Cube(d);
-		render(cube);
-		render3d(cube);
+
+		let ch3d = new CubeHandler3d(cube);
+		let ch2d = new CubeHandler2d(cube);
+
+		ch3d.render3d((e) => {
+
+			let orientation = ch3d.getOrientationMap();
+			console.log(e);
+
+			ch2d.setFaces(orientation);
+
+		});
+
+		ch2d.render(ch3d.getOrientationMap());
+
 	});
-
-
 });
