@@ -4,13 +4,13 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.render = void 0;
+exports.CubeHandler2d = CubeHandler2d;
 
 var _d = require("d3");
 
 var _somed = require("./somed3");
 
-var render = function render(cube) {
+var render = function render(cube, orientation) {
   var forward = function forward(color) {
     cube.rotate(color);
   };
@@ -47,21 +47,28 @@ var render = function render(cube) {
   }, false);
   */
 
-  var renderCube = function renderCube() {
+  var renderCube = function renderCube(orientation) {
     /*
     let scramble = parser.SequenceParser("B L2 B' D' U' L' D' L2 B D B F' L2 R U' B2 F' D R2 B F D2 L R' B' L' F2 D F D'");
     scramble(cube);
     */
-    ["white", "red", "green", "blue", "yellow", "orange"].forEach(function (color) {
+
+    /*
+    [
+        "white", "red", "green",
+        "blue", "yellow", "orange",
+    ]
+    */
+    Object.keys(orientation).forEach(function (dir) {
+      var color = orientation[dir];
       var faceColors = cube.getFaceColors(color);
-      var face = document.querySelector(".faces .".concat(color));
-      var svg = (0, _somed.drawCube)(face.clientWidth, face.clientHeight, faceColors);
-      console.log(svg);
-      face.append(svg);
+      var face = (0, _d.select)(".faces .".concat(color)).classed("f_".concat(dir), true);
+      var svg = (0, _somed.drawCube)(face.node().clientWidth, face.node().clientHeight, faceColors);
+      face.node().append(svg);
     });
   };
 
-  renderCube();
+  renderCube(orientation);
 
   var update = function update() {
     ["white", "red", "green", "blue", "yellow", "orange"].forEach(function (color) {
@@ -93,7 +100,23 @@ var render = function render(cube) {
   });
 };
 
-exports.render = render;
+function CubeHandler2d(cube) {
+  this.cube = cube;
+}
+
+CubeHandler2d.prototype.render = function (orientation) {
+  render(this.cube, orientation);
+};
+
+CubeHandler2d.prototype.setFaces = function (orientation) {
+  Object.keys(orientation).forEach(function (dir) {
+    var color = orientation[dir]; //current color for this direction
+
+    (0, _d.select)(".faces .f_".concat(dir)) //find the element
+    .classed("red white blue green orange yellow", false) //remove all the colors
+    .classed("".concat(color), true); //add the current color
+  });
+};
 
 },{"./somed3":2,"d3":37}],2:[function(require,module,exports){
 "use strict";
@@ -177,7 +200,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.render3d = void 0;
+exports.CubeHandler3d = CubeHandler3d;
 
 var THREE = _interopRequireWildcard(require("three"));
 
@@ -185,11 +208,13 @@ var _glMatrix = require("gl-matrix");
 
 var _TrackballControls = require("three/examples/jsm/controls/TrackballControls");
 
+var _d = require("d3");
+
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-var render3d = function render3d(cube) {
+var render3d = function render3d(cube, changeHandler) {
   var divCube = document.querySelector("div.cube");
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(75, divCube.clientWidth / divCube.clientHeight, 0.1, 1000);
@@ -222,6 +247,9 @@ var render3d = function render3d(cube) {
     });
     var m = new THREE.Mesh(pieceGeom, faceMaterials);
     m.position.set(c.position2()[0], c.position2()[1], c.position2()[2]);
+    m.userData = {
+      piece: c
+    };
     cubeGroup.add(m);
     pMap[c.key] = m;
     Object.keys(c.colorFaces).forEach(function (k) {
@@ -256,7 +284,8 @@ var render3d = function render3d(cube) {
   camera.position.z = 5;
   camera.position.y = 1;
   var orbit = new _TrackballControls.TrackballControls(camera, renderer.domElement);
-  orbit.rotateSpeed = 10;
+  orbit.rotateSpeed = 5;
+  orbit.addEventListener("change", changeHandler);
 
   var render = function render() {
     requestAnimationFrame(render);
@@ -294,6 +323,71 @@ var render3d = function render3d(cube) {
   cube.onRotateReverse(function (face) {
     rFn(face, Math.PI / 2.0);
   });
+  /*
+  const blah = document.querySelector('#cube');
+   blah.addEventListener('click', event => {
+   });
+  */
+
+  var orientation = {
+    domElement: renderer.domElement,
+    rayCaster: new THREE.Raycaster()
+  };
+
+  orientation.calculate = function () {
+    this.rayCaster.setFromCamera({
+      x: 0,
+      y: 0
+    }, camera);
+    var a = this.rayCaster.intersectObjects(cubeGroup.children);
+    var centers = cubeGroup.children.filter(function (e) {
+      return e.userData.piece.isCenter();
+    });
+    var distances = centers.map(function (e) {
+      return e.position.distanceToSquared(camera.position);
+    });
+    var blah = {};
+    var front = centers[(0, _d.scan)(distances)];
+    var back = centers[(0, _d.scan)(distances, _d.descending)];
+    centers.forEach(function (e) {
+      return blah[e.userData.piece.key] = new THREE.Vector3().subVectors(e.position.clone().applyMatrix4(camera.matrixWorldInverse), front.position.clone().applyMatrix4(camera.matrixWorldInverse)).normalize();
+    });
+    var left = centers[(0, _d.scan)(centers, function (a, b) {
+      return (0, _d.ascending)(blah[a.userData.piece.key].x, blah[b.userData.piece.key].x);
+    })];
+    var right = centers[(0, _d.scan)(centers, function (a, b) {
+      return (0, _d.descending)(blah[a.userData.piece.key].x, blah[b.userData.piece.key].x);
+    })];
+    var bottom = centers[(0, _d.scan)(centers, function (a, b) {
+      return (0, _d.ascending)(blah[a.userData.piece.key].y, blah[b.userData.piece.key].y);
+    })];
+    var top = centers[(0, _d.scan)(centers, function (a, b) {
+      return (0, _d.descending)(blah[a.userData.piece.key].y, blah[b.userData.piece.key].y);
+    })];
+    console.log("Front: ".concat(front.userData.piece.key));
+    console.log("Left: ".concat(left.userData.piece.key));
+    console.log("Back: ".concat(back.userData.piece.key));
+    console.log("Right: ".concat(right.userData.piece.key));
+    console.log("Top: ".concat(top.userData.piece.key));
+    console.log("Bottom: ".concat(bottom.userData.piece.key));
+    var colorMap = {
+      "g": "green",
+      "o": "orange",
+      "b": "blue",
+      "r": "red",
+      "w": "white",
+      "y": "yellow"
+    };
+    return {
+      "front": colorMap[front.userData.piece.key],
+      "left": colorMap[left.userData.piece.key],
+      "back": colorMap[back.userData.piece.key],
+      "right": colorMap[right.userData.piece.key],
+      "up": colorMap[top.userData.piece.key],
+      "down": colorMap[bottom.userData.piece.key]
+    };
+  }.bind(orientation);
+
   window.addEventListener('keydown', function (e) {
     console.log("keyCode: ".concat(e.keyCode));
     var keyMap = {
@@ -325,11 +419,32 @@ var render3d = function render3d(cube) {
     });
   }, true);
   render();
+  return orientation.calculate;
 };
 
-exports.render3d = render3d;
+function CubeHandler3d(cube) {
+  this.cube = cube;
+}
 
-},{"gl-matrix":39,"three":49,"three/examples/jsm/controls/TrackballControls":52}],4:[function(require,module,exports){
+CubeHandler3d.prototype.render3d = function (fn) {
+  this.orientationCalculator = render3d(this.cube, fn);
+};
+
+CubeHandler3d.prototype.getOrientationMap = function () {
+  return this.orientationCalculator();
+  /*
+  return {
+      "up": "white",
+      "front": "green",
+      "left": "orange",
+      "right": "red",
+      "down": "yellow",
+      "back": "blue"
+  };
+  */
+};
+
+},{"d3":37,"gl-matrix":39,"three":49,"three/examples/jsm/controls/TrackballControls":52}],4:[function(require,module,exports){
 /* eslint no-console:0 consistent-return:0 */
 "use strict"; //const d3 = require("d3");
 //const glm = require("gl-matrix");
@@ -495,6 +610,18 @@ function Piece(cube, s) {
 
 Piece.prototype.rotate = function (m) {
   _glMatrix.mat4.mul(this.transform, m, this.transform);
+};
+
+Piece.prototype.isEdge = function () {
+  return this.colors.length == 2;
+};
+
+Piece.prototype.isCenter = function () {
+  return this.colors.length == 1;
+};
+
+Piece.prototype.isCorner = function () {
+  return this.colors.length == 3;
 };
 
 Piece.prototype.toString = function () {
@@ -790,8 +917,14 @@ onload().then(function () {
   (0, _d.text)("default3.csv").then(function (d) {
     console.log(_cube.Cube);
     var cube = new _cube.Cube(d);
-    (0, _render.render)(cube);
-    (0, _render3d.render3d)(cube);
+    var ch3d = new _render3d.CubeHandler3d(cube);
+    var ch2d = new _render.CubeHandler2d(cube);
+    ch3d.render3d(function (e) {
+      var orientation = ch3d.getOrientationMap();
+      console.log(e);
+      ch2d.setFaces(orientation);
+    });
+    ch2d.render(ch3d.getOrientationMap());
   });
 });
 
