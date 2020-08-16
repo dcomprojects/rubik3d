@@ -46,8 +46,8 @@ body {
   grid-gap: 1px;
   grid-template-rows: 1fr 1fr; 
   grid-template-areas:
-    "u r f"
-    "b l d";
+    "u f r"
+    "d b l";
 }
 
 .cube {

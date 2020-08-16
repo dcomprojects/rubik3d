@@ -94,25 +94,34 @@ const render = (cube, orientation) => {
         });
     };
 
-    let clickMap = {
-        "white": ".up",
-        "red": ".right",
-        "green": ".front",
-        "blue": ".back",
-        "yellow": ".down",
-        "orange": ".left",
-    };
+    const colors = [
+            "white", "red", "green",
+            "blue", "yellow", "orange",
+    ];
 
-    Object.keys(clickMap).forEach(k => {
-        let dir = clickMap[k];
-        select(`.faces .${k}`)
-            .on("touchstart", (d, i, g) => {
+    const dirs = [
+            "up", "right", "front",
+            "down", "left", "back",
+    ];
+
+    dirs.forEach(dir => {
+        select(`.faces .f_${dir}`)
+            .on("touchstart", function(d, i, g) {
                 event.preventDefault();
-                rotateFn(k);
+                colors.forEach(c => {
+                    if (select(g[i]).classed(c)) {
+                        rotateFn(c);
+                    }
+                });
                 update();
             })
-            .on("click", (d, i, g) => {
-                rotateFn(k);
+            .on("click", function(d, i, g) {
+                colors.forEach(c => {
+                    console.log(g[i]);
+                    if (select(g[i]).classed(c)) {
+                        rotateFn(c);
+                    }
+                });
                 update();
             });
     });
@@ -122,6 +131,7 @@ const render = (cube, orientation) => {
 
 function CubeHandler2d (cube) {
     this.cube = cube;
+    this.currentOrienation = {};
 }
 
 CubeHandler2d.prototype.render = function(orientation) {
@@ -130,10 +140,24 @@ CubeHandler2d.prototype.render = function(orientation) {
 
 CubeHandler2d.prototype.setFaces = function(orientation) {
 
+    let changed = false;
+    Object.keys(orientation).forEach((dir) => {
+
+        if (this.currentOrienation[dir] !== orientation[dir]) {
+            changed = true;
+        }
+
+    });
+
+    if (!changed) {
+        return;
+    }
+    this.currentOrienation = orientation;
+
     Object.keys(orientation).forEach(dir => {
         const color = orientation[dir];
         select(`.faces .${color}`)
-            .classed(`.${color}`, false)
+            .classed(`${color}`, false)
             .select("svg")
             .remove();
     });
