@@ -47,77 +47,99 @@ var render = function render(cube, orientation) {
   }, false);
   */
 
-  var colors = ["white", "red", "green", "blue", "yellow", "orange"];
-  var svgs = {};
-
   var renderCube = function renderCube(orientation) {
     /*
     let scramble = parser.SequenceParser("B L2 B' D' U' L' D' L2 B D B F' L2 R U' B2 F' D R2 B F D2 L R' B' L' F2 D F D'");
     scramble(cube);
     */
+
+    /*
+    [
+        "white", "red", "green",
+        "blue", "yellow", "orange",
+    ]
+    */
+    var svgs = {};
     Object.keys(orientation).forEach(function (dir) {
       var color = orientation[dir];
       var faceColors = cube.getFaceColors(color);
-      var face = (0, _d.select)(".faces .f_".concat(dir));
-      svgs[color] = (0, _somed.drawCube)(face.node().clientWidth, face.node().clientHeight, faceColors);
+      var face = (0, _d.select)(".faces .f_".concat(dir)).classed(color, true);
+      var svg = (0, _somed.drawCube)(face.node().clientWidth, face.node().clientHeight, faceColors);
+      face.node().append(svg);
+      svgs[color] = svg;
     });
-    Object.keys(orientation).forEach(function (dir) {
-      var face = (0, _d.select)(".faces .f_".concat(dir));
-      colors.forEach(function (c) {
-        face.append("div").classed(c, true).style("display", "none").node().append(svgs[c]);
-      });
-    });
+    return svgs;
   };
 
-  renderCube(orientation);
+  var svgs = renderCube(orientation);
 
   var update = function update() {
-    colors.forEach(function (color) {
+    ["white", "red", "green", "blue", "yellow", "orange"].forEach(function (color) {
       var faceColors = cube.getFaceColors(color);
-      svgs[color].node().update(faceColors); //const face = document.querySelector(`.faces .${color} > svg`);
-      //face.update(faceColors);
+      var face = document.querySelector(".faces .".concat(color, " > svg"));
+      face.update(faceColors);
     });
   };
 
-  var clickMap = {
-    "white": ".up",
-    "red": ".right",
-    "green": ".front",
-    "blue": ".back",
-    "yellow": ".down",
-    "orange": ".left"
-  };
-  Object.keys(clickMap).forEach(function (k) {
-    var dir = clickMap[k];
-    (0, _d.select)(".faces .".concat(k)).on("touchstart", function (d, i, g) {
-      //get the active color
-      //call rotate fn for that color
+  var colors = ["white", "red", "green", "blue", "yellow", "orange"];
+  var dirs = ["up", "right", "front", "down", "left", "back"];
+  dirs.forEach(function (dir) {
+    (0, _d.select)(".faces .f_".concat(dir)).on("touchstart", function (d, i, g) {
       _d.event.preventDefault();
 
-      rotateFn(k);
+      colors.forEach(function (c) {
+        if ((0, _d.select)(g[i]).classed(c)) {
+          rotateFn(c);
+        }
+      });
       update();
     }).on("click", function (d, i, g) {
-      rotateFn(k);
+      colors.forEach(function (c) {
+        console.log(g[i]);
+
+        if ((0, _d.select)(g[i]).classed(c)) {
+          rotateFn(c);
+        }
+      });
       update();
     });
   });
+  return svgs;
 };
 
 function CubeHandler2d(cube) {
   this.cube = cube;
+  this.currentOrienation = {};
 }
 
 CubeHandler2d.prototype.render = function (orientation) {
-  render(this.cube, orientation);
+  this.svgs = render(this.cube, orientation);
 };
 
 CubeHandler2d.prototype.setFaces = function (orientation) {
-  Object.keys(orientation).forEach(function (dir) {
-    var color = orientation[dir]; //current color for this direction
+  var _this = this;
 
-    (0, _d.select)(".faces .f_".concat(dir)) //find the element
-    .classed("red white blue green orange yellow", false) //remove all the colors
-    .classed("".concat(color), true); //add the current color
+  var changed = false;
+  Object.keys(orientation).forEach(function (dir) {
+    if (_this.currentOrienation[dir] !== orientation[dir]) {
+      changed = true;
+    }
+  });
+
+  if (!changed) {
+    return;
+  }
+
+  this.currentOrienation = orientation;
+  Object.keys(orientation).forEach(function (dir) {
+    var color = orientation[dir];
+    (0, _d.select)(".faces .".concat(color)).classed("".concat(color), false).select("svg").remove();
+  });
+  Object.keys(orientation).forEach(function (dir) {
+    var color = orientation[dir];
+    var face = (0, _d.select)(".faces .f_".concat(dir)).classed(color, true);
+    var svg = _this.svgs[color];
+    face.node().append(svg);
   });
 };
 
@@ -922,20 +944,10 @@ onload().then(function () {
     var cube = new _cube.Cube(d);
     var ch3d = new _render3d.CubeHandler3d(cube);
     var ch2d = new _render.CubeHandler2d(cube);
-    var currentOrientation = {};
     ch3d.render3d(function (e) {
       var orientation = ch3d.getOrientationMap();
-      var changed = false;
-      Object.keys(orientation).forEach(function (dir) {
-        if (orientation[dir] !== currentOrientation[dir]) {
-          changed = true;
-        }
-      });
-
-      if (changed) {
-        ch2d.setFaces(orientation);
-        currentOrientation = orientation;
-      }
+      console.log(e);
+      ch2d.setFaces(orientation);
     });
     ch2d.render(ch3d.getOrientationMap());
   });
