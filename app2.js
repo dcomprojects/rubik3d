@@ -47,34 +47,35 @@ var render = function render(cube, orientation) {
   }, false);
   */
 
+  var colors = ["white", "red", "green", "blue", "yellow", "orange"];
+  var svgs = {};
+
   var renderCube = function renderCube(orientation) {
     /*
     let scramble = parser.SequenceParser("B L2 B' D' U' L' D' L2 B D B F' L2 R U' B2 F' D R2 B F D2 L R' B' L' F2 D F D'");
     scramble(cube);
     */
-
-    /*
-    [
-        "white", "red", "green",
-        "blue", "yellow", "orange",
-    ]
-    */
     Object.keys(orientation).forEach(function (dir) {
       var color = orientation[dir];
       var faceColors = cube.getFaceColors(color);
-      var face = (0, _d.select)(".faces .".concat(color)).classed("f_".concat(dir), true);
-      var svg = (0, _somed.drawCube)(face.node().clientWidth, face.node().clientHeight, faceColors);
-      face.node().append(svg);
+      var face = (0, _d.select)(".faces .f_".concat(dir));
+      svgs[color] = (0, _somed.drawCube)(face.node().clientWidth, face.node().clientHeight, faceColors);
+    });
+    Object.keys(orientation).forEach(function (dir) {
+      var face = (0, _d.select)(".faces .f_".concat(dir));
+      colors.forEach(function (c) {
+        face.append("div").classed(c, true).style("display", "none").node().append(svgs[c]);
+      });
     });
   };
 
   renderCube(orientation);
 
   var update = function update() {
-    ["white", "red", "green", "blue", "yellow", "orange"].forEach(function (color) {
+    colors.forEach(function (color) {
       var faceColors = cube.getFaceColors(color);
-      var face = document.querySelector(".faces .".concat(color, " > svg"));
-      face.update(faceColors);
+      svgs[color].node().update(faceColors); //const face = document.querySelector(`.faces .${color} > svg`);
+      //face.update(faceColors);
     });
   };
 
@@ -89,6 +90,8 @@ var render = function render(cube, orientation) {
   Object.keys(clickMap).forEach(function (k) {
     var dir = clickMap[k];
     (0, _d.select)(".faces .".concat(k)).on("touchstart", function (d, i, g) {
+      //get the active color
+      //call rotate fn for that color
       _d.event.preventDefault();
 
       rotateFn(k);
@@ -919,10 +922,20 @@ onload().then(function () {
     var cube = new _cube.Cube(d);
     var ch3d = new _render3d.CubeHandler3d(cube);
     var ch2d = new _render.CubeHandler2d(cube);
+    var currentOrientation = {};
     ch3d.render3d(function (e) {
       var orientation = ch3d.getOrientationMap();
-      console.log(e);
-      ch2d.setFaces(orientation);
+      var changed = false;
+      Object.keys(orientation).forEach(function (dir) {
+        if (orientation[dir] !== currentOrientation[dir]) {
+          changed = true;
+        }
+      });
+
+      if (changed) {
+        ch2d.setFaces(orientation);
+        currentOrientation = orientation;
+      }
     });
     ch2d.render(ch3d.getOrientationMap());
   });
