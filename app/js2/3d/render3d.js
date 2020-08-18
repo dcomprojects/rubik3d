@@ -167,14 +167,6 @@ let render3d = (cube, changeHandler) => {
         rFn(face, Math.PI / 2.0);
     });
 
-    /*
-    const blah = document.querySelector('#cube');
-
-    blah.addEventListener('click', event => {
-
-    });
-    */
-
     const orientation = {
         domElement: renderer.domElement,
         rayCaster: new THREE.Raycaster(),
@@ -196,31 +188,36 @@ let render3d = (cube, changeHandler) => {
         let front = centers[scan(distances)];
         let back = centers[scan(distances, descending)];
 
-        centers.forEach(e => blah[e.userData.piece.key] =
+        let others = centers.filter(e => 
+                e.userData.piece.key !== front.userData.piece.key && 
+                e.userData.piece.key !== back.userData.piece.key 
+                );
+
+        others.forEach(e => blah[e.userData.piece.key] =
             new THREE.Vector3().subVectors(
                 e.position.clone().applyMatrix4(camera.matrixWorldInverse),
                 front.position.clone().applyMatrix4(camera.matrixWorldInverse))
             .normalize());
 
-        let left = centers[scan(centers, (a, b) => {
+        let left = others[scan(others, (a, b) => {
             return ascending(
                 blah[a.userData.piece.key].x,
                 blah[b.userData.piece.key].x);
         })];
 
-        let right = centers[scan(centers, (a, b) => {
+        let right = others[scan(others, (a, b) => {
             return descending(
                 blah[a.userData.piece.key].x,
                 blah[b.userData.piece.key].x);
         })];
 
-        let bottom = centers[scan(centers, (a, b) => {
+        let bottom = others[scan(others, (a, b) => {
             return ascending(
                 blah[a.userData.piece.key].y,
                 blah[b.userData.piece.key].y);
         })];
 
-        let top = centers[scan(centers, (a, b) => {
+        let top = others[scan(others, (a, b) => {
             return descending(
                 blah[a.userData.piece.key].y,
                 blah[b.userData.piece.key].y);
