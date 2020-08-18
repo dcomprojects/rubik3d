@@ -348,12 +348,6 @@ var render3d = function render3d(cube, changeHandler) {
   cube.onRotateReverse(function (face) {
     rFn(face, Math.PI / 2.0);
   });
-  /*
-  const blah = document.querySelector('#cube');
-   blah.addEventListener('click', event => {
-   });
-  */
-
   var orientation = {
     domElement: renderer.domElement,
     rayCaster: new THREE.Raycaster()
@@ -374,19 +368,22 @@ var render3d = function render3d(cube, changeHandler) {
     var blah = {};
     var front = centers[(0, _d.scan)(distances)];
     var back = centers[(0, _d.scan)(distances, _d.descending)];
-    centers.forEach(function (e) {
+    var others = centers.filter(function (e) {
+      return e.userData.piece.key !== front.userData.piece.key && e.userData.piece.key !== back.userData.piece.key;
+    });
+    others.forEach(function (e) {
       return blah[e.userData.piece.key] = new THREE.Vector3().subVectors(e.position.clone().applyMatrix4(camera.matrixWorldInverse), front.position.clone().applyMatrix4(camera.matrixWorldInverse)).normalize();
     });
-    var left = centers[(0, _d.scan)(centers, function (a, b) {
+    var left = others[(0, _d.scan)(others, function (a, b) {
       return (0, _d.ascending)(blah[a.userData.piece.key].x, blah[b.userData.piece.key].x);
     })];
-    var right = centers[(0, _d.scan)(centers, function (a, b) {
+    var right = others[(0, _d.scan)(others, function (a, b) {
       return (0, _d.descending)(blah[a.userData.piece.key].x, blah[b.userData.piece.key].x);
     })];
-    var bottom = centers[(0, _d.scan)(centers, function (a, b) {
+    var bottom = others[(0, _d.scan)(others, function (a, b) {
       return (0, _d.ascending)(blah[a.userData.piece.key].y, blah[b.userData.piece.key].y);
     })];
-    var top = centers[(0, _d.scan)(centers, function (a, b) {
+    var top = others[(0, _d.scan)(others, function (a, b) {
       return (0, _d.descending)(blah[a.userData.piece.key].y, blah[b.userData.piece.key].y);
     })];
     console.log("Front: ".concat(front.userData.piece.key));
