@@ -41,63 +41,19 @@ const render = (cube, orientation) => {
         }, false);
 
     });
-    /*
-    el.addEventListener("touchmove", (ev) => {
-        ev.preventDefault();
-    }, false);
-    */
-
-
-    let renderCube = (orientation) => {
-        /*
-        let scramble = parser.SequenceParser("B L2 B' D' U' L' D' L2 B D B F' L2 R U' B2 F' D R2 B F D2 L R' B' L' F2 D F D'");
-        scramble(cube);
-        */
-
-        /*
-        [
-            "white", "red", "green",
-            "blue", "yellow", "orange",
-        ]
-        */
-
-        const svgs = {};
-
-        Object.keys(orientation)
-        .forEach(dir => {
-
-            let color = orientation[dir];
-            let faceColors = cube.getFaceColors(color);
-
-            const face = select(`.faces .f_${dir}`).classed(color, true);
-            const svg = drawCube(face.node().clientWidth, face.node().clientHeight, faceColors);
-            face.node().append(svg);
-            svgs[color] = svg;
-
-        });
-
-        return svgs;
-    };
-
-    let svgs = renderCube(orientation);
-
-    let update = () => {
-        [
-            "white", "red", "green",
-            "blue", "yellow", "orange",
-        ].forEach(color => {
-
-            let faceColors = cube.getFaceColors(color);
-            const face = document.querySelector(`.faces .${color} > svg`);
-            face.update(faceColors);
-
-        });
-    };
 
     const colors = [
             "white", "red", "green",
             "blue", "yellow", "orange",
     ];
+
+    let update = () => {
+        colors.forEach(color => {
+            let faceColors = cube.getFaceColors(color);
+            const face = document.querySelector(`.faces .${color} > svg`);
+            face.update(faceColors);
+        });
+    };
 
     const dirs = [
             "up", "right", "front",
@@ -126,7 +82,31 @@ const render = (cube, orientation) => {
             });
     });
 
-    return svgs;
+    let buildSVGs = (orientation) => {
+
+        /*
+        let scramble = parser.SequenceParser("B L2 B' D' U' L' D' L2 B D B F' L2 R U' B2 F' D R2 B F D2 L R' B' L' F2 D F D'");
+        scramble(cube);
+        */
+
+        const svgs = {};
+
+        Object.keys(orientation).forEach(dir => {
+
+            let color = orientation[dir];
+            let faceColors = cube.getFaceColors(color);
+
+            const face = select(`.faces .f_${dir}`).classed(color, true);
+            const svg = drawCube(face.node().clientWidth, face.node().clientHeight, faceColors);
+            face.node().append(svg);
+            svgs[color] = svg;
+
+        });
+
+        return svgs;
+    };
+
+    return buildSVGs(orientation);
 };
 
 function CubeHandler2d (cube) {

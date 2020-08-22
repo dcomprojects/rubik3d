@@ -1,15 +1,15 @@
+import {text} from 'd3';
 import {Cube} from "./cube";
 import {CubeHandler2d} from "./2d/render";
-import {text} from 'd3';
 import {CubeHandler3d} from "./3d/render3d";
 
 const onload = () => {
-	return new Promise(function (resolve, reject) {
+	return new Promise(function (resolve) {
 		window.addEventListener('load', resolve);
 	});
 };
 
-onload().then(() => {
+const initWindowProps = () => new Promise((resolve) => {
 
 	// First we get the viewport height and we multiple it by 1% to get a value for a vh unit
 	let vh = window.innerHeight * 0.01;
@@ -23,10 +23,16 @@ onload().then(() => {
 		document.documentElement.style.setProperty('--vh', `${vh}px`);
 	});
 
-	text("default.csv").then((d) => {
-		console.log(Cube);
-		let cube = new Cube(d);
+	resolve();
+});
 
+const initCube = () => text("default.csv").then((data) => {
+	return new Cube(data);
+});
+
+const render = (cube) => {
+
+	return new Promise((resolve, reject) => {
 		let ch3d = new CubeHandler3d(cube);
 		let ch2d = new CubeHandler2d(cube);
 
@@ -41,5 +47,12 @@ onload().then(() => {
 
 		ch2d.render(ch3d.getOrientationMap());
 
+		resolve();
 	});
+
+};  
+
+Promise.all([initCube(), onload()]).then(values => {
+	initWindowProps();
+	render(values[0]);
 });
