@@ -84,7 +84,7 @@ function copy() {
       'web/**/webfonts/*',
       'web/**/d3/d3.js',
       'web/**/data/*',
-      'resources/**/default3.csv'
+      'resources/**/default.csv'
     ])
     .pipe(gulp.dest('build'));
 }

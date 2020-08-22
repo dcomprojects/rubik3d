@@ -7,7 +7,7 @@ test.beforeEach(t => {
     const fs = require("fs");
 
 	t.context = {
-		cube: new c.Cube(fs.readFileSync("resources/default3.csv", {encoding: "utf8"})) 
+		cube: new c.Cube(fs.readFileSync("resources/default.csv", {encoding: "utf8"})) 
 	};
 });
 

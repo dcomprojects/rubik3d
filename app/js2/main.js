@@ -23,7 +23,7 @@ onload().then(() => {
 		document.documentElement.style.setProperty('--vh', `${vh}px`);
 	});
 
-	text("default3.csv").then((d) => {
+	text("default.csv").then((d) => {
 		console.log(Cube);
 		let cube = new Cube(d);
 

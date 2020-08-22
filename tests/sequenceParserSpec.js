@@ -1,7 +1,24 @@
-describe("Sequence Parser", function () {
-  var parser = require('../../app/js/cube/sequenceParser');
+const test = require("ava");
+const sinon = require("sinon");
+
+test.beforeEach(t => {
+
+  t.context = {
+    parser: require('../app/js2/sequenceParser')
+  };
 
 
+
+});
+
+test('placeholder', t => {
+
+    let fn = t.context.parser.SequenceParser("L' D2 B2 D2 U2 R2 U' L R' B U L' D2 U' F U R B' D' L2 R U F D B D L B F U2");
+
+    t.true(true);
+});
+
+/*
   let cube;
 
   beforeEach(function () {
@@ -58,3 +75,5 @@ describe("Sequence Parser", function () {
 
 
 });
+
+*/

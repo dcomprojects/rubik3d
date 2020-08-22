@@ -11,8 +11,8 @@ const dirToColorMap = {
     "F": "green"
 };
 
-function SequenceParser(seq) {
-
+function SequenceParser(seq) { 
+ 
     let rotate = (cube, face) => {
         cube.rotate(face);
     };
@@ -60,4 +60,4 @@ function SequenceParser(seq) {
 
 }
 
-exports.SequenceParser = SequenceParser;
+export {SequenceParser};
