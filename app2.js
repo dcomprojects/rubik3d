@@ -41,47 +41,16 @@ var render = function render(cube, orientation) {
       rotateFn = forward;
     }, false);
   });
-  /*
-  el.addEventListener("touchmove", (ev) => {
-      ev.preventDefault();
-  }, false);
-  */
-
-  var renderCube = function renderCube(orientation) {
-    /*
-    let scramble = parser.SequenceParser("B L2 B' D' U' L' D' L2 B D B F' L2 R U' B2 F' D R2 B F D2 L R' B' L' F2 D F D'");
-    scramble(cube);
-    */
-
-    /*
-    [
-        "white", "red", "green",
-        "blue", "yellow", "orange",
-    ]
-    */
-    var svgs = {};
-    Object.keys(orientation).forEach(function (dir) {
-      var color = orientation[dir];
-      var faceColors = cube.getFaceColors(color);
-      var face = (0, _d.select)(".faces .f_".concat(dir)).classed(color, true);
-      var svg = (0, _somed.drawCube)(face.node().clientWidth, face.node().clientHeight, faceColors);
-      face.node().append(svg);
-      svgs[color] = svg;
-    });
-    return svgs;
-  };
-
-  var svgs = renderCube(orientation);
+  var colors = ["white", "red", "green", "blue", "yellow", "orange"];
 
   var update = function update() {
-    ["white", "red", "green", "blue", "yellow", "orange"].forEach(function (color) {
+    colors.forEach(function (color) {
       var faceColors = cube.getFaceColors(color);
       var face = document.querySelector(".faces .".concat(color, " > svg"));
       face.update(faceColors);
     });
   };
 
-  var colors = ["white", "red", "green", "blue", "yellow", "orange"];
   var dirs = ["up", "right", "front", "down", "left", "back"];
   dirs.forEach(function (dir) {
     (0, _d.select)(".faces .f_".concat(dir)).on("touchstart", function (d, i, g) {
@@ -104,7 +73,25 @@ var render = function render(cube, orientation) {
       update();
     });
   });
-  return svgs;
+
+  var buildSVGs = function buildSVGs(orientation) {
+    /*
+    let scramble = parser.SequenceParser("B L2 B' D' U' L' D' L2 B D B F' L2 R U' B2 F' D R2 B F D2 L R' B' L' F2 D F D'");
+    scramble(cube);
+    */
+    var svgs = {};
+    Object.keys(orientation).forEach(function (dir) {
+      var color = orientation[dir];
+      var faceColors = cube.getFaceColors(color);
+      var face = (0, _d.select)(".faces .f_".concat(dir)).classed(color, true);
+      var svg = (0, _somed.drawCube)(face.node().clientWidth, face.node().clientHeight, faceColors);
+      face.node().append(svg);
+      svgs[color] = svg;
+    });
+    return svgs;
+  };
+
+  return buildSVGs(orientation);
 };
 
 function CubeHandler2d(cube) {
@@ -911,34 +898,44 @@ Cube.prototype.getFaceColors = function (face) {
 },{"d3":37,"gl-matrix":39}],5:[function(require,module,exports){
 "use strict";
 
+var _d = require("d3");
+
 var _cube = require("./cube");
 
 var _render = require("./2d/render");
 
-var _d = require("d3");
-
 var _render3d = require("./3d/render3d");
 
 var onload = function onload() {
-  return new Promise(function (resolve, reject) {
+  return new Promise(function (resolve) {
     window.addEventListener('load', resolve);
   });
 };
 
-onload().then(function () {
-  // First we get the viewport height and we multiple it by 1% to get a value for a vh unit
-  var vh = window.innerHeight * 0.01; // Then we set the value in the --vh custom property to the root of the document
+var initWindowProps = function initWindowProps() {
+  return new Promise(function (resolve) {
+    // First we get the viewport height and we multiple it by 1% to get a value for a vh unit
+    var vh = window.innerHeight * 0.01; // Then we set the value in the --vh custom property to the root of the document
 
-  document.documentElement.style.setProperty('--vh', "".concat(vh, "px")); // We listen to the resize event
+    document.documentElement.style.setProperty('--vh', "".concat(vh, "px")); // We listen to the resize event
 
-  window.addEventListener('resize', function () {
-    // We execute the same script as before
-    var vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', "".concat(vh, "px"));
+    window.addEventListener('resize', function () {
+      // We execute the same script as before
+      var vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', "".concat(vh, "px"));
+    });
+    resolve();
   });
-  (0, _d.text)("default3.csv").then(function (d) {
-    console.log(_cube.Cube);
-    var cube = new _cube.Cube(d);
+};
+
+var initCube = function initCube() {
+  return (0, _d.text)("default.csv").then(function (data) {
+    return new _cube.Cube(data);
+  });
+};
+
+var render = function render(cube) {
+  return new Promise(function (resolve, reject) {
     var ch3d = new _render3d.CubeHandler3d(cube);
     var ch2d = new _render.CubeHandler2d(cube);
     ch3d.render3d(function (e) {
@@ -947,7 +944,13 @@ onload().then(function () {
       ch2d.setFaces(orientation);
     });
     ch2d.render(ch3d.getOrientationMap());
+    resolve();
   });
+};
+
+Promise.all([initCube(), onload()]).then(function (values) {
+  initWindowProps();
+  render(values[0]);
 });
 
 },{"./2d/render":1,"./3d/render3d":3,"./cube":4,"d3":37}],6:[function(require,module,exports){
