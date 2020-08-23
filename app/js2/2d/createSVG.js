@@ -1,8 +1,8 @@
 
 import * as d3 from 'd3';
 
-function buildData(inData) {
-    let data2 = [];
+function prepareData(inData) {
+    let ret = [];
     let iter = inData.values();
     for (let y = 0; y < 3; y++) {
         for (let x = 0; x < 3; x++) {
@@ -10,14 +10,14 @@ function buildData(inData) {
             d.push(x);
             d.push(y);
             d.push(iter.next().value);
-            data2.push(d);
+            ret.push(d);
         }
     }
 
-    return data2;
+    return ret;
 }
 
-function drawCube(width, height, inData) {
+function createSVG(width, height, inData) {
 
     let dim = d3.min([width, height]) * 0.9;
 
@@ -27,17 +27,15 @@ function drawCube(width, height, inData) {
 
     let cdim = (dim/3.0);
 
-
     let pieceGroup = svg.append("g")
         .selectAll("g")
-        .data(buildData(inData))
+        .data(prepareData(inData))
         .join("g")
         .call(g => {
 
             g.append("path")
                 .attr("d", d => {
                     let p = d3.path();
-                    //p.rect(d[0] * dim / 3.0, d[1] * dim / 3.0, dim / 3.0, dim / 3.0);
                     p.rect(d[0] * cdim, d[1] * cdim, cdim, cdim);
                     return p;
                 })
@@ -61,11 +59,11 @@ function drawCube(width, height, inData) {
 
     return Object.assign(svg.node(), {
         update: (data) => {
-            pieceGroup.data(buildData(data))
+            pieceGroup.data(prepareData(data))
             .select("path")
             .attr("fill", d => d[2]);
         }
     });
 }
 
-export {drawCube};
+export {createSVG};

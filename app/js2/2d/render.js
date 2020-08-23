@@ -1,6 +1,6 @@
 
-import {event, select} from 'd3';
-import {drawCube} from './somed3';
+import {event, select, svg} from 'd3';
+import {createSVG} from './createSVG';
 
 const render = (cube, orientation) => {
 
@@ -97,10 +97,8 @@ const render = (cube, orientation) => {
             let faceColors = cube.getFaceColors(color);
 
             const face = select(`.faces .f_${dir}`).classed(color, true);
-            const svg = drawCube(face.node().clientWidth, face.node().clientHeight, faceColors);
-            face.node().append(svg);
-            svgs[color] = svg;
-
+            svgs[color] = createSVG(face.node().clientWidth, face.node().clientHeight, faceColors);
+            face.node().append(svgs[color]);
         });
 
         return svgs;
