@@ -1,7 +1,5 @@
 /* eslint no-console:0 consistent-return:0 */
 "use strict";
-//const d3 = require("d3");
-//const glm = require("gl-matrix");
 
 import {vec3, mat4} from "gl-matrix";
 import {dsvFormat} from "d3";
@@ -13,7 +11,7 @@ const BLUE=3;
 const ORANGE=4;
 const YELLOW=5;
 
-let colorMap = {
+let ColorMap = {
     w: {
         value: "white",
         key: "w",
@@ -64,20 +62,20 @@ let colorMap = {
 };
 
 const COLORS = new Array(6);
-COLORS[WHITE] = colorMap.w; 
-COLORS[GREEN] = colorMap.g; 
-COLORS[RED] = colorMap.r; 
-COLORS[BLUE] = colorMap.b; 
-COLORS[ORANGE] = colorMap.o; 
-COLORS[YELLOW] = colorMap.y; 
+COLORS[WHITE] = ColorMap.w; 
+COLORS[GREEN] = ColorMap.g; 
+COLORS[RED] = ColorMap.r; 
+COLORS[BLUE] = ColorMap.b; 
+COLORS[ORANGE] = ColorMap.o; 
+COLORS[YELLOW] = ColorMap.y; 
 
 let FACES = {
-    white: colorMap.w,
-    red: colorMap.r,
-    green: colorMap.g,
-    blue: colorMap.b,
-    orange: colorMap.o,
-    yellow: colorMap.y
+    white: ColorMap.w,
+    red: ColorMap.r,
+    green: ColorMap.g,
+    blue: ColorMap.b,
+    orange: ColorMap.o,
+    yellow: ColorMap.y
 };
 
 function ColorFace(cube, color, vector, transform) {
@@ -129,14 +127,14 @@ function Piece(cube, s) {
             colors.push(c);
             i++;
         }
-        vec3.add(position, position, colorMap[c].direction);
+        vec3.add(position, position, ColorMap[c].direction);
     });
 
     let transform = mat4.fromTranslation(mat4.create(), position);
     s.split(",").map(c => {
 
-        let color = colorMap[c].value;
-        colorFaces[color] = new ColorFace(cube, color, colorMap[c].direction, transform);
+        let color = ColorMap[c].value;
+        colorFaces[color] = new ColorFace(cube, color, ColorMap[c].direction, transform);
     });
 
     let key = colors.join("");
@@ -193,7 +191,7 @@ Piece.prototype.getColors = function() {
 
 Piece.prototype.getFaceColor = function(color) {
 
-    let colorValue = colorMap[color].value;
+    let colorValue = ColorMap[color].value;
     let ret;
     Object.keys(this.colorFaces).forEach(k => {
         let cf = this.colorFaces[k]; 
@@ -310,7 +308,7 @@ Cube.prototype.getByPosition = function(key) {
 
     let vec = vec3.create();
     key.split("").forEach(c => {
-        vec3.add(vec, vec, colorMap[c].direction);
+        vec3.add(vec, vec, ColorMap[c].direction);
     });
 
     for (const k of this.pieces.keys()) {
@@ -342,14 +340,14 @@ Cube.prototype.getFacePiecePositions = function(faceColor)
 {
     let a1 = [faceColor];
     let a2 = [
-        colorMap[faceColor].adjacent[0], 
+        ColorMap[faceColor].adjacent[0], 
         "",
-        colorMap[faceColor].adjacent[1], 
+        ColorMap[faceColor].adjacent[1], 
     ];
     let a3 = [
-        colorMap[faceColor].adjacent[2], 
+        ColorMap[faceColor].adjacent[2], 
         "",
-        colorMap[faceColor].adjacent[3], 
+        ColorMap[faceColor].adjacent[3], 
     ];
 
     let ret = [];
@@ -365,7 +363,7 @@ Cube.prototype.getFacePiecePositions = function(faceColor)
 
 Cube.prototype.getFaceColors = function(face) {
 
-    if (!(face in colorMap)) {
+    if (!(face in ColorMap)) {
         face = FACES[face].key;
     }
 
@@ -375,4 +373,4 @@ Cube.prototype.getFaceColors = function(face) {
 
 };
 
-export {Cube};
+export {Cube, ColorMap};
