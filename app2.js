@@ -1,6 +1,79 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createSVG = createSVG;
+
+var d3 = _interopRequireWildcard(require("d3"));
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function prepareData(inData) {
+  var ret = [];
+  var iter = inData.values();
+
+  for (var y = 0; y < 3; y++) {
+    for (var x = 0; x < 3; x++) {
+      ret.push({
+        "x": x,
+        "y": y,
+        "color": iter.next().value
+      });
+    }
+  }
+
+  return ret;
+}
+
+function createSVG(width, height, inData) {
+  var dim = d3.min([width, height]) * 0.9;
+  var svg = d3.create("svg").attr("viewBox", [0, 0, dim, dim]).attr("height", dim);
+  var cdim = dim / 3.0;
+  var pieceGroup = svg.append("g").selectAll("g").data(prepareData(inData)).join("g").call(function (g) {
+    g.append("path").attr("d", function (d) {
+      var p = d3.path();
+      p.rect(d.x * cdim, d.y * cdim, cdim, cdim);
+      return p;
+    }).attr("fill", function (d) {
+      return d.color;
+    });
+    g.append("line").attr("stroke", "black").attr("x1", function (d) {
+      return d.x * cdim;
+    }).attr("x2", function (d) {
+      return (d.x + 1) * cdim;
+    }).attr("y1", function (d) {
+      return d.y * cdim;
+    }).attr("y2", function (d) {
+      return d.y * cdim;
+    });
+    g.append("line").attr("stroke", "black").attr("x1", function (d) {
+      return d.x * cdim;
+    }).attr("x2", function (d) {
+      return d.x * cdim;
+    }).attr("y1", function (d) {
+      return d.y * cdim;
+    }).attr("y2", function (d) {
+      return (d.y + 1) * cdim;
+    });
+  });
+  return Object.assign(svg.node(), {
+    update: function update(data) {
+      pieceGroup.data(prepareData(data)).select("path").attr("fill", function (d) {
+        return d.color;
+      });
+    }
+  });
+}
+
+},{"d3":37}],2:[function(require,module,exports){
+"use strict";
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -8,7 +81,7 @@ exports.CubeHandler2d = CubeHandler2d;
 
 var _d = require("d3");
 
-var _somed = require("./somed3");
+var _createSVG = require("./createSVG");
 
 var render = function render(cube, orientation) {
   var forward = function forward(color) {
@@ -84,9 +157,8 @@ var render = function render(cube, orientation) {
       var color = orientation[dir];
       var faceColors = cube.getFaceColors(color);
       var face = (0, _d.select)(".faces .f_".concat(dir)).classed(color, true);
-      var svg = (0, _somed.drawCube)(face.node().clientWidth, face.node().clientHeight, faceColors);
-      face.node().append(svg);
-      svgs[color] = svg;
+      svgs[color] = (0, _createSVG.createSVG)(face.node().clientWidth, face.node().clientHeight, faceColors);
+      face.node().append(svgs[color]);
     });
     return svgs;
   };
@@ -130,81 +202,7 @@ CubeHandler2d.prototype.setFaces = function (orientation) {
   });
 };
 
-},{"./somed3":2,"d3":37}],2:[function(require,module,exports){
-"use strict";
-
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.drawCube = drawCube;
-
-var d3 = _interopRequireWildcard(require("d3"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function buildData(inData) {
-  var data2 = [];
-  var iter = inData.values();
-
-  for (var y = 0; y < 3; y++) {
-    for (var x = 0; x < 3; x++) {
-      var d = [];
-      d.push(x);
-      d.push(y);
-      d.push(iter.next().value);
-      data2.push(d);
-    }
-  }
-
-  return data2;
-}
-
-function drawCube(width, height, inData) {
-  var dim = d3.min([width, height]) * 0.9;
-  var svg = d3.create("svg").attr("viewBox", [0, 0, dim, dim]).attr("height", dim);
-  var cdim = dim / 3.0;
-  var pieceGroup = svg.append("g").selectAll("g").data(buildData(inData)).join("g").call(function (g) {
-    g.append("path").attr("d", function (d) {
-      var p = d3.path(); //p.rect(d[0] * dim / 3.0, d[1] * dim / 3.0, dim / 3.0, dim / 3.0);
-
-      p.rect(d[0] * cdim, d[1] * cdim, cdim, cdim);
-      return p;
-    }).attr("fill", function (d) {
-      return d[2];
-    });
-    g.append("line").attr("stroke", "black").attr("x1", function (d) {
-      return d[0] * cdim;
-    }).attr("x2", function (d) {
-      return (d[0] + 1) * cdim;
-    }).attr("y1", function (d) {
-      return d[1] * cdim;
-    }).attr("y2", function (d) {
-      return d[1] * cdim;
-    });
-    g.append("line").attr("stroke", "black").attr("x1", function (d) {
-      return d[0] * cdim;
-    }).attr("x2", function (d) {
-      return d[0] * cdim;
-    }).attr("y1", function (d) {
-      return d[1] * cdim;
-    }).attr("y2", function (d) {
-      return (d[1] + 1) * cdim;
-    });
-  });
-  return Object.assign(svg.node(), {
-    update: function update(data) {
-      pieceGroup.data(buildData(data)).select("path").attr("fill", function (d) {
-        return d[2];
-      });
-    }
-  });
-}
-
-},{"d3":37}],3:[function(require,module,exports){
+},{"./createSVG":1,"d3":37}],3:[function(require,module,exports){
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -455,13 +453,13 @@ CubeHandler3d.prototype.getOrientationMap = function () {
 
 },{"d3":37,"gl-matrix":39,"three":49,"three/examples/jsm/controls/TrackballControls":52}],4:[function(require,module,exports){
 /* eslint no-console:0 consistent-return:0 */
-"use strict"; //const d3 = require("d3");
-//const glm = require("gl-matrix");
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Cube = Cube;
+exports.ColorMap = void 0;
 
 var _glMatrix = require("gl-matrix");
 
@@ -479,7 +477,7 @@ var GREEN = 2;
 var BLUE = 3;
 var ORANGE = 4;
 var YELLOW = 5;
-var colorMap = {
+var ColorMap = {
   w: {
     value: "white",
     key: "w",
@@ -528,20 +526,21 @@ var colorMap = {
     direction: _glMatrix.vec3.fromValues(0, 0, 0)
   }
 };
+exports.ColorMap = ColorMap;
 var COLORS = new Array(6);
-COLORS[WHITE] = colorMap.w;
-COLORS[GREEN] = colorMap.g;
-COLORS[RED] = colorMap.r;
-COLORS[BLUE] = colorMap.b;
-COLORS[ORANGE] = colorMap.o;
-COLORS[YELLOW] = colorMap.y;
+COLORS[WHITE] = ColorMap.w;
+COLORS[GREEN] = ColorMap.g;
+COLORS[RED] = ColorMap.r;
+COLORS[BLUE] = ColorMap.b;
+COLORS[ORANGE] = ColorMap.o;
+COLORS[YELLOW] = ColorMap.y;
 var FACES = {
-  white: colorMap.w,
-  red: colorMap.r,
-  green: colorMap.g,
-  blue: colorMap.b,
-  orange: colorMap.o,
-  yellow: colorMap.y
+  white: ColorMap.w,
+  red: ColorMap.r,
+  green: ColorMap.g,
+  blue: ColorMap.b,
+  orange: ColorMap.o,
+  yellow: ColorMap.y
 };
 
 function ColorFace(cube, color, vector, transform) {
@@ -595,14 +594,14 @@ function Piece(cube, s) {
       i++;
     }
 
-    _glMatrix.vec3.add(position, position, colorMap[c].direction);
+    _glMatrix.vec3.add(position, position, ColorMap[c].direction);
   });
 
   var transform = _glMatrix.mat4.fromTranslation(_glMatrix.mat4.create(), position);
 
   s.split(",").map(function (c) {
-    var color = colorMap[c].value;
-    colorFaces[color] = new ColorFace(cube, color, colorMap[c].direction, transform);
+    var color = ColorMap[c].value;
+    colorFaces[color] = new ColorFace(cube, color, ColorMap[c].direction, transform);
   });
   var key = colors.join("");
   Object.assign(this, {
@@ -652,7 +651,7 @@ Piece.prototype.getColors = function () {
 Piece.prototype.getFaceColor = function (color) {
   var _this2 = this;
 
-  var colorValue = colorMap[color].value;
+  var colorValue = ColorMap[color].value;
   var ret;
   Object.keys(this.colorFaces).forEach(function (k) {
     var cf = _this2.colorFaces[k];
@@ -792,7 +791,7 @@ Cube.prototype.getByPosition = function (key) {
   var vec = _glMatrix.vec3.create();
 
   key.split("").forEach(function (c) {
-    _glMatrix.vec3.add(vec, vec, colorMap[c].direction);
+    _glMatrix.vec3.add(vec, vec, ColorMap[c].direction);
   });
 
   var _iterator4 = _createForOfIteratorHelper(this.pieces.keys()),
@@ -843,8 +842,8 @@ Cube.prototype.getFace = function (color) {
 
 Cube.prototype.getFacePiecePositions = function (faceColor) {
   var a1 = [faceColor];
-  var a2 = [colorMap[faceColor].adjacent[0], "", colorMap[faceColor].adjacent[1]];
-  var a3 = [colorMap[faceColor].adjacent[2], "", colorMap[faceColor].adjacent[3]];
+  var a2 = [ColorMap[faceColor].adjacent[0], "", ColorMap[faceColor].adjacent[1]];
+  var a3 = [ColorMap[faceColor].adjacent[2], "", ColorMap[faceColor].adjacent[3]];
   var ret = [];
 
   for (var _i = 0, _a = a1; _i < _a.length; _i++) {
@@ -884,7 +883,7 @@ Cube.prototype.getFacePiecePositions = function (faceColor) {
 Cube.prototype.getFaceColors = function (face) {
   var _this4 = this;
 
-  if (!(face in colorMap)) {
+  if (!(face in ColorMap)) {
     face = FACES[face].key;
   }
 
@@ -953,7 +952,7 @@ Promise.all([initCube(), onload()]).then(function (values) {
   render(values[0]);
 });
 
-},{"./2d/render":1,"./3d/render3d":3,"./cube":4,"d3":37}],6:[function(require,module,exports){
+},{"./2d/render":2,"./3d/render3d":3,"./cube":4,"d3":37}],6:[function(require,module,exports){
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
