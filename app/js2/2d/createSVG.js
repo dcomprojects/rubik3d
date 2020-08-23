@@ -6,11 +6,11 @@ function prepareData(inData) {
     let iter = inData.values();
     for (let y = 0; y < 3; y++) {
         for (let x = 0; x < 3; x++) {
-            let d = [];
-            d.push(x);
-            d.push(y);
-            d.push(iter.next().value);
-            ret.push(d);
+            ret.push({
+                "x": x,
+                "y": y,
+                "color": iter.next().value,
+            });
         }
     }
 
@@ -36,24 +36,24 @@ function createSVG(width, height, inData) {
             g.append("path")
                 .attr("d", d => {
                     let p = d3.path();
-                    p.rect(d[0] * cdim, d[1] * cdim, cdim, cdim);
+                    p.rect(d.x * cdim, d.y * cdim, cdim, cdim);
                     return p;
                 })
-                .attr("fill", d => d[2]);
+                .attr("fill", d => d.color);
 
             g.append("line")
                 .attr("stroke", "black")
-                .attr("x1", d => d[0] * cdim)
-                .attr("x2", d => (d[0] + 1) * cdim)
-                .attr("y1", d => d[1] * cdim)
-                .attr("y2", d => (d[1]) * cdim);
+                .attr("x1", d => d.x * cdim)
+                .attr("x2", d => (d.x + 1) * cdim)
+                .attr("y1", d => d.y * cdim)
+                .attr("y2", d => d.y * cdim);
 
             g.append("line")
                 .attr("stroke", "black")
-                .attr("x1", d => d[0] * cdim)
-                .attr("x2", d => (d[0]) * cdim)
-                .attr("y1", d => d[1] * cdim)
-                .attr("y2", d => (d[1] + 1) * cdim);
+                .attr("x1", d => d.x * cdim)
+                .attr("x2", d => d.x * cdim)
+                .attr("y1", d => d.y * cdim)
+                .attr("y2", d => (d.y + 1) * cdim);
 
         });
 
@@ -61,7 +61,7 @@ function createSVG(width, height, inData) {
         update: (data) => {
             pieceGroup.data(prepareData(data))
             .select("path")
-            .attr("fill", d => d[2]);
+            .attr("fill", d => d.color);
         }
     });
 }
