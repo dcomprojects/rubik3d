@@ -83,6 +83,16 @@ var _d = require("d3");
 
 var _createSVG = require("./createSVG");
 
+var colors = ["white", "red", "green", "blue", "yellow", "orange"];
+
+var update = function update(cube) {
+  colors.forEach(function (color) {
+    var faceColors = cube.getFaceColors(color);
+    var face = document.querySelector(".faces .".concat(color, " > svg"));
+    face.update(faceColors);
+  });
+};
+
 var render = function render(cube, orientation) {
   var forward = function forward(color) {
     cube.rotate(color);
@@ -114,9 +124,8 @@ var render = function render(cube, orientation) {
       rotateFn = forward;
     }, false);
   });
-  var colors = ["white", "red", "green", "blue", "yellow", "orange"];
 
-  var update = function update() {
+  var updatex = function updatex() {
     colors.forEach(function (color) {
       var faceColors = cube.getFaceColors(color);
       var face = document.querySelector(".faces .".concat(color, " > svg"));
@@ -134,7 +143,7 @@ var render = function render(cube, orientation) {
           rotateFn(c);
         }
       });
-      update();
+      update(cube);
     }).on("click", function (d, i, g) {
       colors.forEach(function (c) {
         console.log(g[i]);
@@ -143,7 +152,7 @@ var render = function render(cube, orientation) {
           rotateFn(c);
         }
       });
-      update();
+      update(cube);
     });
   });
 
@@ -152,18 +161,16 @@ var render = function render(cube, orientation) {
     let scramble = parser.SequenceParser("B L2 B' D' U' L' D' L2 B D B F' L2 R U' B2 F' D R2 B F D2 L R' B' L' F2 D F D'");
     scramble(cube);
     */
-    var svgs = {};
     Object.keys(orientation).forEach(function (dir) {
       var color = orientation[dir];
       var faceColors = cube.getFaceColors(color);
       var face = (0, _d.select)(".faces .f_".concat(dir)).classed(color, true);
-      svgs[color] = (0, _createSVG.createSVG)(face.node().clientWidth, face.node().clientHeight, faceColors);
-      face.node().append(svgs[color]);
+      var svg = (0, _createSVG.createSVG)(face.node().clientWidth, face.node().clientHeight, faceColors);
+      face.node().append(svg);
     });
-    return svgs;
   };
 
-  return buildSVGs(orientation);
+  buildSVGs(orientation);
 };
 
 function CubeHandler2d(cube) {
@@ -172,7 +179,7 @@ function CubeHandler2d(cube) {
 }
 
 CubeHandler2d.prototype.render = function (orientation) {
-  this.svgs = render(this.cube, orientation);
+  render(this.cube, orientation);
 };
 
 CubeHandler2d.prototype.setFaces = function (orientation) {
@@ -192,14 +199,13 @@ CubeHandler2d.prototype.setFaces = function (orientation) {
   this.currentOrienation = orientation;
   Object.keys(orientation).forEach(function (dir) {
     var color = orientation[dir];
-    (0, _d.select)(".faces .".concat(color)).classed("".concat(color), false).select("svg").remove();
+    (0, _d.select)(".faces .".concat(color)).classed("".concat(color), false);
   });
   Object.keys(orientation).forEach(function (dir) {
     var color = orientation[dir];
     var face = (0, _d.select)(".faces .f_".concat(dir)).classed(color, true);
-    var svg = _this.svgs[color];
-    face.node().append(svg);
   });
+  update(this.cube);
 };
 
 },{"./createSVG":1,"d3":37}],3:[function(require,module,exports){
