@@ -227,11 +227,11 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var render3d = function render3d(cube, changeHandler) {
   var divCube = document.querySelector("div.cube");
   var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(75, divCube.clientWidth / divCube.clientHeight, 0.1, 1000);
+  var camera = new THREE.PerspectiveCamera(60, divCube.clientWidth / divCube.clientHeight, 0.1, 1000);
   var renderer = new THREE.WebGLRenderer();
   renderer.setSize(divCube.clientWidth, divCube.clientHeight);
   divCube.appendChild(renderer.domElement);
-  var pieceGeom = new THREE.BoxGeometry(0.98, 0.98, 0.98);
+  var pieceGeom = new THREE.BoxGeometry(0.95, 0.95, 0.95);
   var cubeGroup = new THREE.Group();
   pieceGeom.faces.forEach(function (f, i) {
     f.materialIndex = i;
@@ -262,11 +262,6 @@ var render3d = function render3d(cube, changeHandler) {
     };
     cubeGroup.add(m);
     pMap[c.key] = m;
-    Object.keys(c.colorFaces).forEach(function (k) {
-      console.log("Expected color ".concat(k));
-
-      if (k in groups) {}
-    });
   };
 
   var pieces = {};
@@ -276,11 +271,6 @@ var render3d = function render3d(cube, changeHandler) {
   var right = cube.getFace("red");
   var front = cube.getFace("green");
   var back = cube.getFace("blue");
-  var groups = {};
-  ["white", "yellow", "orange", "red", "green", "blue"].forEach(function (c) {
-    groups[c] = new THREE.Group();
-    scene.add(groups[c]);
-  });
   [top, bottom, left, right, front, back].forEach(function (s) {
     s.forEach(function (p) {
       pieces[p.key] = p;
@@ -291,11 +281,21 @@ var render3d = function render3d(cube, changeHandler) {
     fn(pieces[k], pMap);
   });
   scene.add(cubeGroup);
+  /*
   camera.position.z = 5;
   camera.position.y = 1;
+  camera.position.x = -7;
+  */
+
+  camera.position.z = 2.5788751967444594;
+  camera.position.x = -4.368264013205228;
+  camera.position.y = 2.8252303672987282;
   var orbit = new _TrackballControls.TrackballControls(camera, renderer.domElement);
   orbit.rotateSpeed = 5;
-  orbit.addEventListener("change", changeHandler);
+  orbit.addEventListener("change", function (e) {
+    console.log("\n        ".concat(camera.position.x, " \n        ").concat(camera.position.y, " \n        ").concat(camera.position.z, "\n"));
+    changeHandler(e);
+  });
 
   var render = function render() {
     requestAnimationFrame(render);
@@ -351,8 +351,11 @@ var render3d = function render3d(cube, changeHandler) {
       return e.position.distanceToSquared(camera.position);
     });
     var blah = {};
-    var front = centers[(0, _d.scan)(distances)];
-    var back = centers[(0, _d.scan)(distances, _d.descending)];
+    var front = centers[(0, _d.scan)(distances)]; //let back = centers[scan(distances, descending)];
+
+    var back = centers.find(function (e) {
+      return e.userData.piece.key === cube.getOpposite(front.userData.piece.key).key;
+    });
     var others = centers.filter(function (e) {
       return e.userData.piece.key !== front.userData.piece.key && e.userData.piece.key !== back.userData.piece.key;
     });
@@ -365,12 +368,18 @@ var render3d = function render3d(cube, changeHandler) {
     var right = others[(0, _d.scan)(others, function (a, b) {
       return (0, _d.descending)(blah[a.userData.piece.key].x, blah[b.userData.piece.key].x);
     })];
+    right = others.find(function (e) {
+      return e.userData.piece.key === cube.getOpposite(left.userData.piece.key).key;
+    });
     var bottom = others[(0, _d.scan)(others, function (a, b) {
       return (0, _d.ascending)(blah[a.userData.piece.key].y, blah[b.userData.piece.key].y);
     })];
     var top = others[(0, _d.scan)(others, function (a, b) {
       return (0, _d.descending)(blah[a.userData.piece.key].y, blah[b.userData.piece.key].y);
     })];
+    top = others.find(function (e) {
+      return e.userData.piece.key === cube.getOpposite(bottom.userData.piece.key).key;
+    });
     console.log("Front: ".concat(front.userData.piece.key));
     console.log("Left: ".concat(left.userData.piece.key));
     console.log("Back: ".concat(back.userData.piece.key));
@@ -892,6 +901,19 @@ Cube.prototype.getFaceColors = function (face) {
   }).map(function (pos) {
     return pos.getFaceColor(face);
   });
+};
+
+var opposites = {
+  "r": "o",
+  "o": "r",
+  "g": "b",
+  "b": "g",
+  "y": "w",
+  "w": "y"
+};
+
+Cube.prototype.getOpposite = function (key) {
+  return this.get(opposites[key]);
 };
 
 },{"d3":37,"gl-matrix":39}],5:[function(require,module,exports){
