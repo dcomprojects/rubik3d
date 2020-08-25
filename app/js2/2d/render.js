@@ -2,6 +2,20 @@
 import {event, select, svg} from 'd3';
 import {createSVG} from './createSVG';
 
+const colors = [
+            "white", "red", "green",
+            "blue", "yellow", "orange",
+];
+
+let update = (cube) => {
+        colors.forEach(color => {
+            let faceColors = cube.getFaceColors(color);
+            const face = document.querySelector(`.faces .${color} > svg`);
+            face.update(faceColors);
+        });
+};
+
+
 const render = (cube, orientation) => {
 
     let forward = (color) => {
@@ -135,18 +149,15 @@ CubeHandler2d.prototype.setFaces = function(orientation) {
     Object.keys(orientation).forEach(dir => {
         const color = orientation[dir];
         select(`.faces .${color}`)
-            .classed(`${color}`, false)
-            .select("svg")
-            .remove();
+            .classed(`${color}`, false);
     });
 
     Object.keys(orientation).forEach(dir => {
         const color = orientation[dir];
         const face = select(`.faces .f_${dir}`).classed(color, true);
-        const svg = this.svgs[color];
-        face.node().append(svg);
     });
 
+    update(this.cube);
 };
 
 export {
