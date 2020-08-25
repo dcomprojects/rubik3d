@@ -373,4 +373,17 @@ Cube.prototype.getFaceColors = function(face) {
 
 };
 
+let opposites = {
+    "r": "o",
+    "o": "r",
+    "g": "b",
+    "b": "g",
+    "y": "w",
+    "w": "y",
+};
+
+Cube.prototype.getOpposite = function(key) {
+    return this.get(opposites[key]);
+};
+
 export {Cube, ColorMap};

@@ -7,9 +7,6 @@ import {
 import {
     TrackballControls
 } from 'three/examples/jsm/controls/TrackballControls';
-import {
-    Matrix4
-} from 'three';
 
 import {
     scan,
@@ -25,14 +22,14 @@ let render3d = (cube, changeHandler) => {
     const divCube = document.querySelector("div.cube");
 
     var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(75, divCube.clientWidth / divCube.clientHeight, 0.1, 1000);
+    var camera = new THREE.PerspectiveCamera(60, divCube.clientWidth / divCube.clientHeight, 0.1, 1000);
 
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(divCube.clientWidth, divCube.clientHeight);
 
     divCube.appendChild(renderer.domElement);
 
-    var pieceGeom = new THREE.BoxGeometry(0.98, 0.98, 0.98);
+    var pieceGeom = new THREE.BoxGeometry(0.95, 0.95, 0.95);
 
     let cubeGroup = new THREE.Group();
 
@@ -78,11 +75,6 @@ let render3d = (cube, changeHandler) => {
         };
         cubeGroup.add(m);
         pMap[c.key] = m;
-
-        Object.keys(c.colorFaces).forEach(k => {
-            console.log(`Expected color ${k}`);
-            if (k in groups) {}
-        });
     };
 
     let pieces = {};
@@ -92,12 +84,6 @@ let render3d = (cube, changeHandler) => {
     let right = cube.getFace("red");
     let front = cube.getFace("green");
     let back = cube.getFace("blue");
-
-    let groups = {};
-    ["white", "yellow", "orange", "red", "green", "blue"].forEach(c => {
-        groups[c] = new THREE.Group();
-        scene.add(groups[c]);
-    });
 
     [top, bottom, left, right, front, back].forEach(s => {
         s.forEach(p => {
@@ -112,13 +98,27 @@ let render3d = (cube, changeHandler) => {
 
     scene.add(cubeGroup);
 
+    /*
     camera.position.z = 5;
     camera.position.y = 1;
+    camera.position.x = -7;
+    */
+
+    camera.position.z = 2.5788751967444594;
+    camera.position.x = -4.368264013205228;
+    camera.position.y = 2.8252303672987282;
 
     let orbit = new TrackballControls(camera, renderer.domElement);
     orbit.rotateSpeed = 5;
 
-    orbit.addEventListener("change", changeHandler);
+    orbit.addEventListener("change", (e) => {
+        console.log(`
+        ${camera.position.x} 
+        ${camera.position.y} 
+        ${camera.position.z}
+`);
+        changeHandler(e);
+    });
 
     let render = () => {
         requestAnimationFrame(render);
@@ -151,7 +151,7 @@ let render3d = (cube, changeHandler) => {
             );
             let m2 = new THREE.Matrix4().makeTranslation(pos.x, pos.y, pos.z);
 
-            let m = new Matrix4();
+            let m = new THREE.Matrix4();
             m.multiplyMatrices(r1, m2);
             m.multiplyMatrices(m, m1);
             pMap[p.key].applyMatrix4(m);
@@ -186,8 +186,9 @@ let render3d = (cube, changeHandler) => {
 
         const blah = {};
         let front = centers[scan(distances)];
-        let back = centers[scan(distances, descending)];
+        //let back = centers[scan(distances, descending)];
 
+        let back = centers.find(e => e.userData.piece.key === cube.getOpposite(front.userData.piece.key).key);
         let others = centers.filter(e => 
                 e.userData.piece.key !== front.userData.piece.key && 
                 e.userData.piece.key !== back.userData.piece.key 
@@ -210,6 +211,7 @@ let render3d = (cube, changeHandler) => {
                 blah[a.userData.piece.key].x,
                 blah[b.userData.piece.key].x);
         })];
+        right = others.find(e => e.userData.piece.key === cube.getOpposite(left.userData.piece.key).key);
 
         let bottom = others[scan(others, (a, b) => {
             return ascending(
@@ -222,6 +224,7 @@ let render3d = (cube, changeHandler) => {
                 blah[a.userData.piece.key].y,
                 blah[b.userData.piece.key].y);
         })];
+        top = others.find(e => e.userData.piece.key === cube.getOpposite(bottom.userData.piece.key).key);
 
         console.log(`Front: ${front.userData.piece.key}`);
         console.log(`Left: ${left.userData.piece.key}`);
@@ -283,7 +286,7 @@ let render3d = (cube, changeHandler) => {
             );
             let m2 = new THREE.Matrix4().makeTranslation(pos.x, pos.y, pos.z);
 
-            let m = new Matrix4();
+            let m = new THREE.Matrix4();
             m.multiplyMatrices(r1, m2);
             m.multiplyMatrices(m, m1);
             pMap[p.key].applyMatrix4(m);
