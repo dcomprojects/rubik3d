@@ -1,5 +1,5 @@
 
-import {event, select, svg} from 'd3';
+import {event, select} from 'd3';
 import {createSVG} from './createSVG';
 
 const colors = [
@@ -14,7 +14,6 @@ let update = (cube) => {
             face.update(faceColors);
         });
 };
-
 
 const render = (cube, orientation) => {
 
@@ -56,12 +55,7 @@ const render = (cube, orientation) => {
 
     });
 
-    const colors = [
-            "white", "red", "green",
-            "blue", "yellow", "orange",
-    ];
-
-    let update = () => {
+    let updatex = () => {
         colors.forEach(color => {
             let faceColors = cube.getFaceColors(color);
             const face = document.querySelector(`.faces .${color} > svg`);
@@ -83,7 +77,7 @@ const render = (cube, orientation) => {
                         rotateFn(c);
                     }
                 });
-                update();
+                update(cube);
             })
             .on("click", function(d, i, g) {
                 colors.forEach(c => {
@@ -92,7 +86,7 @@ const render = (cube, orientation) => {
                         rotateFn(c);
                     }
                 });
-                update();
+                update(cube);
             });
     });
 
@@ -103,22 +97,18 @@ const render = (cube, orientation) => {
         scramble(cube);
         */
 
-        const svgs = {};
-
         Object.keys(orientation).forEach(dir => {
 
             let color = orientation[dir];
             let faceColors = cube.getFaceColors(color);
 
             const face = select(`.faces .f_${dir}`).classed(color, true);
-            svgs[color] = createSVG(face.node().clientWidth, face.node().clientHeight, faceColors);
-            face.node().append(svgs[color]);
+            const svg = createSVG(face.node().clientWidth, face.node().clientHeight, faceColors);
+            face.node().append(svg);
         });
-
-        return svgs;
     };
 
-    return buildSVGs(orientation);
+    buildSVGs(orientation);
 };
 
 function CubeHandler2d (cube) {
@@ -127,7 +117,7 @@ function CubeHandler2d (cube) {
 }
 
 CubeHandler2d.prototype.render = function(orientation) {
-    this.svgs = render(this.cube, orientation);
+    render(this.cube, orientation);
 };
 
 CubeHandler2d.prototype.setFaces = function(orientation) {
