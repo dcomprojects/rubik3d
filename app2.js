@@ -961,7 +961,6 @@ var render = function render(cube) {
     var ch2d = new _render.CubeHandler2d(cube);
     ch3d.render3d(function (e) {
       var orientation = ch3d.getOrientationMap();
-      console.log(e);
       ch2d.setFaces(orientation);
     });
     ch2d.render(ch3d.getOrientationMap());
