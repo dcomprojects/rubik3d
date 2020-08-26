@@ -19,7 +19,7 @@ let update = (cube, orientation) => {
 
 };
 
-const render = (cube, orientation, fn) => {
+const render = (cube, orientationFn) => {
 
     let forward = (color) => {
         cube.rotate(color);
@@ -69,7 +69,7 @@ const render = (cube, orientation, fn) => {
             .on("touchstart", function(d, i, g) {
                 event.preventDefault();
 
-                const orientation = fn();
+                const orientation = orientationFn();
                 Object.keys(orientation).forEach(dir => {
                     if (select(g[i]).classed(`f_${dir}`)) {
                         rotateFn(orientation[dir]);
@@ -80,7 +80,7 @@ const render = (cube, orientation, fn) => {
             })
             .on("click", function(d, i, g) {
 
-                const orientation = fn();
+                const orientation = orientationFn();
                 Object.keys(orientation).forEach(dir => {
                     if (select(g[i]).classed(`f_${dir}`)) {
                         rotateFn(orientation[dir]);
@@ -108,7 +108,7 @@ const render = (cube, orientation, fn) => {
         });
     };
 
-    buildSVGs(orientation);
+    buildSVGs(orientationFn());
 };
 
 function CubeHandler2d (cube) {
@@ -116,13 +116,16 @@ function CubeHandler2d (cube) {
     this.currentOrienation = {};
 }
 
-CubeHandler2d.prototype.render = function(orientation, fn) {
-    render(this.cube, orientation, fn);
+CubeHandler2d.prototype.render = function(orientationFn) {
+    render(this.cube, orientationFn);
 };
 
-CubeHandler2d.prototype.setFaces = function(orientation, fn) {
+CubeHandler2d.prototype.setFaces = function(orientationFn) {
 
     let changed = false;
+
+    const orientation = orientationFn();
+
     Object.keys(orientation).forEach((dir) => {
 
         if (this.currentOrienation[dir] !== orientation[dir]) {

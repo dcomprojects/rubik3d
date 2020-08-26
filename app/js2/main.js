@@ -41,11 +41,10 @@ const render = (cube) => {
 		};
 
 		ch3d.render3d((e) => {
-			let orientation = ch3d.getOrientationMap();
-			ch2d.setFaces(orientation, orientationFn);
+			ch2d.setFaces(orientationFn);
 		});
 
-		ch2d.render(ch3d.getOrientationMap(), orientationFn);
+		ch2d.render(orientationFn);
 		resolve();
 	});
 
