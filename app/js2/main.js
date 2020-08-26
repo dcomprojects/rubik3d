@@ -36,12 +36,16 @@ const render = (cube) => {
 		let ch3d = new CubeHandler3d(cube);
 		let ch2d = new CubeHandler2d(cube);
 
+		let orientationFn = () => {
+			return ch3d.getOrientationMap();
+		};
+
 		ch3d.render3d((e) => {
 			let orientation = ch3d.getOrientationMap();
-			ch2d.setFaces(orientation);
+			ch2d.setFaces(orientation, orientationFn);
 		});
 
-		ch2d.render(ch3d.getOrientationMap());
+		ch2d.render(ch3d.getOrientationMap(), orientationFn);
 		resolve();
 	});
 
