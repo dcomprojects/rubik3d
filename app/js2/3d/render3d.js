@@ -108,6 +108,12 @@ let render3d = (cube, changeHandler) => {
     camera.position.x = -4.368264013205228;
     camera.position.y = 2.8252303672987282;
 
+    /*
+    camera.position.z = 0;
+    camera.position.x = 0; 
+    camera.position.y = 4.5; 
+    */
+
     let orbit = new TrackballControls2(camera, renderer.domElement);
     orbit.rotateSpeed = 2;
 
@@ -228,12 +234,14 @@ let render3d = (cube, changeHandler) => {
         })];
         top = others.find(e => e.userData.piece.key === cube.getOpposite(bottom.userData.piece.key).key);
 
+        /*
         console.log(`Front: ${front.userData.piece.key}`);
         console.log(`Left: ${left.userData.piece.key}`);
         console.log(`Back: ${back.userData.piece.key}`);
         console.log(`Right: ${right.userData.piece.key}`);
         console.log(`Top: ${top.userData.piece.key}`);
         console.log(`Bottom: ${bottom.userData.piece.key}`);
+        */
 
         const colorMap = {
             "g": "green",

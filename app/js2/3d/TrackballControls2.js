@@ -10,7 +10,8 @@ import {
 	MOUSE,
 	Quaternion,
 	Vector2,
-	Vector3
+	Vector3,
+	MathUtils
 } from "three/build/three.module.js";
 
 var TrackballControls2 = function ( object, domElement ) {
@@ -64,6 +65,10 @@ var TrackballControls2 = function ( object, domElement ) {
 
 		_movePrev = new Vector2(),
 		_moveCurr = new Vector2(),
+		_clickStart = new Vector2(),
+		_referencePoint = new Vector2(),
+		_rotateHorizontal = null,
+		_rotateVertical = null,
 
 		_lastAxis = new Vector3(),
 		_lastAngle = 0,
@@ -138,6 +143,62 @@ var TrackballControls2 = function ( object, domElement ) {
 		};
 
 	}() );
+
+	this.rotateOnVerticalAxis = (function() {
+
+		const axis = new Vector3(),
+			quaternion = new Quaternion(),
+			eyeDirection = new Vector3(),
+			objectUpDirection = new Vector3(),
+			objectSidewaysDirection = new Vector3(),
+			moveDirection = new Vector3();
+
+		return function() {
+			console.log(`Hello! ${_rotateHorizontal}`);
+			_lastAngle = 0; 
+			_eye.copy( scope.object.position ).sub( scope.target );
+			eyeDirection.copy( _eye).normalize();
+			objectUpDirection.copy( scope.object.up ).normalize();
+			//axis.crossVectors( objectUpDirection, eyeDirection).normalize();
+			axis.copy(objectUpDirection);
+			quaternion.setFromAxisAngle( axis, _rotateHorizontal);
+			_eye.applyQuaternion( quaternion );
+			scope.object.up.applyQuaternion( quaternion );
+			_movePrev.copy( _moveCurr );
+
+			_rotateHorizontal = null;
+		};
+
+	}());
+
+	this.rotateOnHorizontalAxis = (function() {
+
+		const axis = new Vector3(),
+			quaternion = new Quaternion(),
+			eyeDirection = new Vector3(),
+			objectUpDirection = new Vector3(),
+			objectSidewaysDirection = new Vector3(),
+			moveDirection = new Vector3();
+
+		return function() {
+			console.log(`Hello! ${_rotateVertical}`);
+			_lastAngle = 0; 
+			_eye.copy( scope.object.position ).sub( scope.target );
+			eyeDirection.copy( _eye ).normalize();
+			objectUpDirection.copy( scope.object.up ).normalize();
+			objectSidewaysDirection.crossVectors( objectUpDirection, eyeDirection ).normalize();
+			//axis.crossVectors( objectUpDirection, eyeDirection).normalize();
+			axis.copy(objectSidewaysDirection);
+			quaternion.setFromAxisAngle( axis, _rotateVertical);
+			_eye.applyQuaternion( quaternion );
+			scope.object.up.applyQuaternion( quaternion );
+			_movePrev.copy( _moveCurr );
+
+			_rotateVertical = null;
+		};
+
+	}());
+
 
 	this.rotateCamera = ( function () {
 
@@ -330,7 +391,13 @@ var TrackballControls2 = function ( object, domElement ) {
 
 		if ( ! scope.noRotate ) {
 
-			scope.rotateCamera();
+			if (_rotateHorizontal) {
+				scope.rotateOnVerticalAxis();
+			} else if (_rotateVertical) {
+				scope.rotateOnHorizontalAxis ();
+			} else {
+				scope.rotateCamera();
+			}
 
 		}
 
@@ -444,6 +511,11 @@ var TrackballControls2 = function ( object, domElement ) {
 
 	}
 
+	function log(msg) {
+		var p = document.getElementById('log');
+		p.innerHTML = msg + "\n" + p.innerHTML;
+	  }
+
 	function mousedown( event ) {
 
 		if ( scope.enabled === false ) return;
@@ -475,6 +547,8 @@ var TrackballControls2 = function ( object, domElement ) {
 		}
 
 		var state = ( _keyState !== STATE.NONE ) ? _keyState : _state;
+
+		_clickStart.copy( getMouseOnCircle( event.pageX, event.pageY ) );
 
 		if ( state === STATE.ROTATE && ! scope.noRotate ) {
 
@@ -526,6 +600,42 @@ var TrackballControls2 = function ( object, domElement ) {
 
 	}
 
+	function handleClick() {
+		_rotateHorizontal = null; 
+		_rotateVertical = null; 
+		const tolerance = Number.EPSILON;
+
+		log(Math.abs(_clickStart.distanceTo(_moveCurr) - 0.0));
+		if (Math.abs(_clickStart.distanceTo(_moveCurr) - 0.0) < tolerance) {
+			console.log('Mouse Click!');
+
+			_referencePoint.copy(getMouseOnCircle(0,0));
+
+			const x = MathUtils.mapLinear(_clickStart.x, _referencePoint.x, -1 * _referencePoint.x, -1, 1);	
+			const y = MathUtils.mapLinear(_clickStart.y, -1 * _referencePoint.y, _referencePoint.y, -1, 1);	
+
+			console.log(`${x},${y}`);
+
+			if (Math.abs(x) > Math.abs(y)) {
+				if (x > 0) {
+					console.log("RIGHT");
+					_rotateHorizontal = -Math.PI/4.0;
+				} else {
+					console.log("LEFT");
+					_rotateHorizontal = Math.PI/4.0;
+				}
+			} else {
+				if (y > 0) {
+					console.log("UP");
+					_rotateVertical = Math.PI/4.0;
+				} else {
+					console.log("DOWN");
+					_rotateVertical = -Math.PI/4.0;
+				}
+			}
+		}
+	}
+
 	function mouseup( event ) {
 
 		if ( scope.enabled === false ) return;
@@ -535,10 +645,44 @@ var TrackballControls2 = function ( object, domElement ) {
 
 		_state = STATE.NONE;
 
+		handleClick();
+		/*
+		_rotateHorizontal = null; 
+		_rotateVertical = null; 
+		const tolerance = Number.EPSILON;
+		if (Math.abs(_clickStart.distanceTo(_moveCurr) - 0.0) < tolerance) {
+			console.log('Mouse Click!');
+
+			_referencePoint.copy(getMouseOnCircle(0,0));
+
+			const x = MathUtils.mapLinear(_clickStart.x, _referencePoint.x, -1 * _referencePoint.x, -1, 1);	
+			const y = MathUtils.mapLinear(_clickStart.y, -1 * _referencePoint.y, _referencePoint.y, -1, 1);	
+
+			console.log(`${x},${y}`);
+
+			if (Math.abs(x) > Math.abs(y)) {
+				if (x > 0) {
+					console.log("RIGHT");
+					_rotateHorizontal = -Math.PI/4.0;
+				} else {
+					console.log("LEFT");
+					_rotateHorizontal = Math.PI/4.0;
+				}
+			} else {
+				if (y > 0) {
+					console.log("UP");
+					_rotateVertical = Math.PI/4.0;
+				} else {
+					console.log("DOWN");
+					_rotateVertical = -Math.PI/4.0;
+				}
+			}
+		}
+		*/
+
 		scope.domElement.ownerDocument.removeEventListener( 'mousemove', mousemove );
 		scope.domElement.ownerDocument.removeEventListener( 'mouseup', mouseup );
 		scope.dispatchEvent( endEvent );
-
 	}
 
 	function mousewheel( event ) {
@@ -586,6 +730,7 @@ var TrackballControls2 = function ( object, domElement ) {
 				_state = STATE.TOUCH_ROTATE;
 				_moveCurr.copy( getMouseOnCircle( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY ) );
 				_movePrev.copy( _moveCurr );
+				_clickStart.copy(_moveCurr);
 				break;
 
 			default: // 2 or more
@@ -642,12 +787,14 @@ var TrackballControls2 = function ( object, domElement ) {
 
 			case 0:
 				_state = STATE.NONE;
+				handleClick();
 				break;
 
 			case 1:
 				_state = STATE.TOUCH_ROTATE;
 				_moveCurr.copy( getMouseOnCircle( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY ) );
 				_movePrev.copy( _moveCurr );
+				handleClick();
 				break;
 
 		}
