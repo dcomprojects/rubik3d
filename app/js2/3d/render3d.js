@@ -14,7 +14,7 @@ import {
     min,
     ascending
 } from 'd3';
-
+import {Animation as MyAnimation} from './animation';
 
 
 let render3d = (cube, changeHandler) => {
@@ -84,6 +84,7 @@ let render3d = (cube, changeHandler) => {
     let right = cube.getFace("red");
     let front = cube.getFace("green");
     let back = cube.getFace("blue");
+    let animations = [];
 
     [top, bottom, left, right, front, back].forEach(s => {
         s.forEach(p => {
@@ -104,32 +105,28 @@ let render3d = (cube, changeHandler) => {
     camera.position.x = -7;
     */
 
-    camera.position.z = 2.5788751967444594;
-    camera.position.x = -4.368264013205228;
-    camera.position.y = 2.8252303672987282;
-
-    /*
-    camera.position.z = 0;
-    camera.position.x = 0; 
-    camera.position.y = 4.5; 
-    */
+    let cPos = new THREE.Vector3(0, 0, 7);
+    camera.position.x = cPos.x;
+    camera.position.y = cPos.y;
+    camera.position.z = cPos.z;
 
     let orbit = new TrackballControls2(camera, renderer.domElement);
     orbit.rotateSpeed = 2;
 
     orbit.addEventListener("change", (e) => {
-        /*
-        console.log(`
-        ${camera.position.x} 
-        ${camera.position.y} 
-        ${camera.position.z}
-`);
-        */
         changeHandler(e);
     });
 
     let render = () => {
         requestAnimationFrame(render);
+
+        if (animations.length) {
+            changeHandler();
+            if (!animations[animations.length - 1].tick()) {
+                animations.pop();
+            }
+        }
+
         orbit.update();
         renderer.render(scene, camera);
     };
@@ -146,25 +143,8 @@ let render3d = (cube, changeHandler) => {
     const rFn = (face, rad) => {
 
         let axis = rotateMap[face];
+        animations.unshift(new MyAnimation(0.5, axis, rad, cube.getFace(face).map(p => pMap[p.key])));
 
-        cube.getFace(face).forEach(p => {
-
-            let pos = pMap[p.key].position.clone();
-
-            let m1 = new THREE.Matrix4().makeTranslation(-pos.x, -pos.y, -pos.z);
-            let r1 = new THREE.Matrix4().makeRotationAxis(
-                axis,
-                rad
-                //-Math.PI / 2.0
-            );
-            let m2 = new THREE.Matrix4().makeTranslation(pos.x, pos.y, pos.z);
-
-            let m = new THREE.Matrix4();
-            m.multiplyMatrices(r1, m2);
-            m.multiplyMatrices(m, m1);
-            pMap[p.key].applyMatrix4(m);
-
-        });
     };
 
     cube.onRotate((face) => {
@@ -189,8 +169,12 @@ let render3d = (cube, changeHandler) => {
 
         let a = this.rayCaster.intersectObjects(cubeGroup.children);
 
+        let _target = new THREE.Vector3();
+        let _cameraPos = new THREE.Vector3();
+        camera.getWorldPosition(_cameraPos);
+
         let centers = cubeGroup.children.filter(e => e.userData.piece.isCenter());
-        let distances = centers.map(e => e.position.distanceToSquared(camera.position));
+        let distances = centers.map(e => e.getWorldPosition(_target).distanceToSquared(_cameraPos));
 
         const blah = {};
         let front = centers[scan(distances)];
@@ -204,8 +188,8 @@ let render3d = (cube, changeHandler) => {
 
         others.forEach(e => blah[e.userData.piece.key] =
             new THREE.Vector3().subVectors(
-                e.position.clone().applyMatrix4(camera.matrixWorldInverse),
-                front.position.clone().applyMatrix4(camera.matrixWorldInverse))
+                e.getWorldPosition(_target).clone().applyMatrix4(camera.matrixWorldInverse),
+                front.getWorldPosition(_target).clone().applyMatrix4(camera.matrixWorldInverse))
             .normalize());
 
         let left = others[scan(others, (a, b) => {
@@ -263,6 +247,25 @@ let render3d = (cube, changeHandler) => {
 
     }.bind(orientation);
 
+    orbit.addEventListener("click", (e) => {
+        console.log(e);
+        let angle = Math.PI/3.0;
+        if (Math.abs(e.x) > Math.abs(e.y)) {
+
+            if (e.x < 0) {
+                angle *= -1;
+            }
+
+            animations.unshift(new MyAnimation(0.3, e.verticalAxis, angle, [cubeGroup]));
+        } else {
+
+            if (e.y >= 0) {
+                angle *= -1;
+            }
+            animations.unshift(new MyAnimation(0.3, e.horizontalAxis, angle, [cubeGroup]));
+        }
+    });
+
     window.addEventListener('keydown', (e) => {
 
         console.log(`keyCode: ${e.keyCode}`);
@@ -305,6 +308,9 @@ let render3d = (cube, changeHandler) => {
     }, true);
 
     render();
+
+    animations.unshift(new MyAnimation(0.5, new THREE.Vector3(1, 0, 0), Math.PI/6.0, [cubeGroup]));
+    animations.unshift(new MyAnimation(0.5, new THREE.Vector3(0, 1, 0), Math.PI/6.0, [cubeGroup]));
 
     return orientation.calculate;
 };

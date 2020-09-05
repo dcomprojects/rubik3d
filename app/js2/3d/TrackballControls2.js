@@ -144,6 +144,31 @@ var TrackballControls2 = function ( object, domElement ) {
 
 	}() );
 
+	var calculateAxis = (function () {
+
+		let eye = new Vector3();
+		let eyeDirection = new Vector3();
+		let objectUpDirection = new Vector3();
+		let objectSidewaysDirection = new Vector3();
+
+		return function () {
+			eye.copy(scope.object.position).sub(scope.target);
+			eyeDirection.copy(eye).normalize();
+
+			objectUpDirection.copy(scope.object.up).normalize();
+			objectSidewaysDirection.crossVectors(objectUpDirection, eyeDirection).normalize();
+
+			//objectUpDirection.applyMatrix4(scope.object.matrixWorld).normalize();
+			//objectSidewaysDirection.applyMatrix4(scope.object.matrixWorld).normalize();
+
+			return {
+				"vertical": objectUpDirection.clone(),
+				"horizontal": objectSidewaysDirection.clone(),
+			};
+		};
+
+	}() );
+
 	this.rotateOnVerticalAxis = (function() {
 
 		const axis = new Vector3(),
@@ -609,30 +634,45 @@ var TrackballControls2 = function ( object, domElement ) {
 		if (Math.abs(_clickStart.distanceTo(_moveCurr) - 0.0) < tolerance) {
 			console.log('Mouse Click!');
 
+
 			_referencePoint.copy(getMouseOnCircle(0,0));
 
 			const x = MathUtils.mapLinear(_clickStart.x, _referencePoint.x, -1 * _referencePoint.x, -1, 1);	
 			const y = MathUtils.mapLinear(_clickStart.y, -1 * _referencePoint.y, _referencePoint.y, -1, 1);	
 
+			let axis = calculateAxis();
+
+			console.log(axis);
+
+			scope.dispatchEvent({
+				"type": 'click',
+				"x": x,
+				"y": y,
+				"verticalAxis": axis.vertical,
+				"horizontalAxis": axis.horizontal
+			});
+
+			/*
 			console.log(`${x},${y}`);
 
 			if (Math.abs(x) > Math.abs(y)) {
 				if (x > 0) {
 					console.log("RIGHT");
-					_rotateHorizontal = -Math.PI/4.0;
+					_rotateHorizontal = -Math.PI/3.0;
 				} else {
 					console.log("LEFT");
-					_rotateHorizontal = Math.PI/4.0;
+					_rotateHorizontal = Math.PI/3.0;
 				}
 			} else {
 				if (y > 0) {
 					console.log("UP");
-					_rotateVertical = Math.PI/4.0;
+					_rotateVertical = Math.PI/3.0;
 				} else {
 					console.log("DOWN");
-					_rotateVertical = -Math.PI/4.0;
+					_rotateVertical = -Math.PI/3.0;
 				}
 			}
+		*/
 		}
 	}
 
