@@ -689,18 +689,18 @@ var TrackballControls2 = function TrackballControls2(object, domElement) {
       if (Math.abs(x) > Math.abs(y)) {
         if (x > 0) {
           console.log("RIGHT");
-          _rotateHorizontal = -Math.PI / 4.0;
+          _rotateHorizontal = -Math.PI / 3.0;
         } else {
           console.log("LEFT");
-          _rotateHorizontal = Math.PI / 4.0;
+          _rotateHorizontal = Math.PI / 3.0;
         }
       } else {
         if (y > 0) {
           console.log("UP");
-          _rotateVertical = Math.PI / 4.0;
+          _rotateVertical = Math.PI / 3.0;
         } else {
           console.log("DOWN");
-          _rotateVertical = -Math.PI / 4.0;
+          _rotateVertical = -Math.PI / 3.0;
         }
       }
     }
@@ -1021,22 +1021,9 @@ var render3d = function render3d(cube, changeHandler) {
   camera.position.z = 2.5788751967444594;
   camera.position.x = -4.368264013205228;
   camera.position.y = 2.8252303672987282;
-  /*
-  camera.position.z = 0;
-  camera.position.x = 0; 
-  camera.position.y = 4.5; 
-  */
-
   var orbit = new _TrackballControls.TrackballControls2(camera, renderer.domElement);
   orbit.rotateSpeed = 2;
   orbit.addEventListener("change", function (e) {
-    /*
-    console.log(`
-    ${camera.position.x} 
-    ${camera.position.y} 
-    ${camera.position.z}
-    `);
-    */
     changeHandler(e);
   });
 
@@ -1044,6 +1031,8 @@ var render3d = function render3d(cube, changeHandler) {
     requestAnimationFrame(render);
 
     if (animations.length) {
+      changeHandler();
+
       if (!animations[animations.length - 1].tick()) {
         animations.pop();
       }
@@ -1067,13 +1056,6 @@ var render3d = function render3d(cube, changeHandler) {
     animations.unshift(new _animation.Animation(0.5, axis, rad, cube.getFace(face).map(function (p) {
       return pMap[p.key];
     })));
-    /*
-    cube.getFace(face).forEach(p => {
-        let qTarget = new THREE.Quaternion().setFromAxisAngle(axis, rad);
-        let q1 = new THREE.Quaternion().slerp(qTarget, 2.0/3.0);
-        pMap[p.key].applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(q1));
-    });
-    */
   };
 
   cube.onRotate(function (face) {
@@ -1093,11 +1075,17 @@ var render3d = function render3d(cube, changeHandler) {
       y: 0
     }, camera);
     var a = this.rayCaster.intersectObjects(cubeGroup.children);
+
+    var _target = new THREE.Vector3();
+
+    var _cameraPos = new THREE.Vector3();
+
+    camera.getWorldPosition(_cameraPos);
     var centers = cubeGroup.children.filter(function (e) {
       return e.userData.piece.isCenter();
     });
     var distances = centers.map(function (e) {
-      return e.position.distanceToSquared(camera.position);
+      return e.getWorldPosition(_target).distanceToSquared(_cameraPos);
     });
     var blah = {};
     var front = centers[(0, _d.scan)(distances)]; //let back = centers[scan(distances, descending)];
@@ -1109,7 +1097,7 @@ var render3d = function render3d(cube, changeHandler) {
       return e.userData.piece.key !== front.userData.piece.key && e.userData.piece.key !== back.userData.piece.key;
     });
     others.forEach(function (e) {
-      return blah[e.userData.piece.key] = new THREE.Vector3().subVectors(e.position.clone().applyMatrix4(camera.matrixWorldInverse), front.position.clone().applyMatrix4(camera.matrixWorldInverse)).normalize();
+      return blah[e.userData.piece.key] = new THREE.Vector3().subVectors(e.getWorldPosition(_target).clone().applyMatrix4(camera.matrixWorldInverse), front.getWorldPosition(_target).clone().applyMatrix4(camera.matrixWorldInverse)).normalize();
     });
     var left = others[(0, _d.scan)(others, function (a, b) {
       return (0, _d.ascending)(blah[a.userData.piece.key].x, blah[b.userData.piece.key].x);
@@ -1187,6 +1175,9 @@ var render3d = function render3d(cube, changeHandler) {
     });
   }, true);
   render();
+  animations.push(new _animation.Animation(1, new THREE.Vector3(1, 0, 0), 60, [cubeGroup]));
+  animations.push(new _animation.Animation(3, new THREE.Vector3(1, 0, 0), 60, [cubeGroup]));
+  animations.push(new _animation.Animation(0.5, new THREE.Vector3(1, 0, 0), 60, [cubeGroup]));
   return orientation.calculate;
 };
 
