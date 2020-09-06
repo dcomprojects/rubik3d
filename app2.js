@@ -327,6 +327,23 @@ var TrackballControls2 = function TrackballControls2(object, domElement) {
     };
   }();
 
+  var calculateAxis = function () {
+    var eye = new _threeModule.Vector3();
+    var eyeDirection = new _threeModule.Vector3();
+    var objectUpDirection = new _threeModule.Vector3();
+    var objectSidewaysDirection = new _threeModule.Vector3();
+    return function () {
+      eye.copy(scope.object.position).sub(scope.target);
+      eyeDirection.copy(eye).normalize();
+      objectUpDirection.copy(scope.object.up).normalize();
+      objectSidewaysDirection.crossVectors(objectUpDirection, eyeDirection).normalize();
+      return {
+        "vertical": objectUpDirection.clone(),
+        "horizontal": objectSidewaysDirection.clone()
+      };
+    };
+  }();
+
   this.rotateOnVerticalAxis = function () {
     var axis = new _threeModule.Vector3(),
         quaternion = new _threeModule.Quaternion(),
@@ -684,25 +701,35 @@ var TrackballControls2 = function TrackballControls2(object, domElement) {
 
       var y = _threeModule.MathUtils.mapLinear(_clickStart.y, -1 * _referencePoint.y, _referencePoint.y, -1, 1);
 
-      console.log("".concat(x, ",").concat(y));
-
-      if (Math.abs(x) > Math.abs(y)) {
-        if (x > 0) {
-          console.log("RIGHT");
-          _rotateHorizontal = -Math.PI / 3.0;
-        } else {
-          console.log("LEFT");
-          _rotateHorizontal = Math.PI / 3.0;
-        }
+      var axis = calculateAxis();
+      console.log(axis);
+      scope.dispatchEvent({
+        "type": 'click',
+        "x": x,
+        "y": y,
+        "verticalAxis": axis.vertical,
+        "horizontalAxis": axis.horizontal
+      });
+      /*
+      console.log(`${x},${y}`);
+      	if (Math.abs(x) > Math.abs(y)) {
+      	if (x > 0) {
+      		console.log("RIGHT");
+      		_rotateHorizontal = -Math.PI/3.0;
+      	} else {
+      		console.log("LEFT");
+      		_rotateHorizontal = Math.PI/3.0;
+      	}
       } else {
-        if (y > 0) {
-          console.log("UP");
-          _rotateVertical = Math.PI / 3.0;
-        } else {
-          console.log("DOWN");
-          _rotateVertical = -Math.PI / 3.0;
-        }
+      	if (y > 0) {
+      		console.log("UP");
+      		_rotateVertical = Math.PI/3.0;
+      	} else {
+      		console.log("DOWN");
+      		_rotateVertical = -Math.PI/3.0;
+      	}
       }
+      */
     }
   }
 
@@ -1144,6 +1171,16 @@ var render3d = function render3d(cube, changeHandler) {
     };
   }.bind(orientation);
 
+  orbit.addEventListener("click", function (e) {
+    console.log(e);
+
+    if (Math.abs(e.x) > Math.abs(e.y)) {
+      animations.push(new _animation.Animation(1, e.verticalAxis, 60, [cubeGroup])); //rotateHorizontal(e.x);
+    } else {
+      //rotateVertical(e.y);
+      animations.push(new _animation.Animation(1, e.horizontalAxis, 60, [cubeGroup]));
+    }
+  });
   window.addEventListener('keydown', function (e) {
     console.log("keyCode: ".concat(e.keyCode));
     var keyMap = {
