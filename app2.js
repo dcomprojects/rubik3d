@@ -1045,9 +1045,12 @@ var render3d = function render3d(cube, changeHandler) {
   camera.position.x = -7;
   */
 
-  camera.position.z = 2.5788751967444594;
-  camera.position.x = -4.368264013205228;
-  camera.position.y = 2.8252303672987282;
+  var cPos = new THREE.Vector3(0, 5, 0);
+  var rota = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI / 3.0, Math.PI / 3.0));
+  cPos.applyQuaternion(rota);
+  camera.position.x = cPos.x;
+  camera.position.y = cPos.y;
+  camera.position.z = cPos.z;
   var orbit = new _TrackballControls.TrackballControls2(camera, renderer.domElement);
   orbit.rotateSpeed = 2;
   orbit.addEventListener("change", function (e) {
@@ -1211,10 +1214,10 @@ var render3d = function render3d(cube, changeHandler) {
       pMap[p.key].applyMatrix4(m);
     });
   }, true);
-  render();
-  animations.push(new _animation.Animation(1, new THREE.Vector3(1, 0, 0), 60, [cubeGroup]));
-  animations.push(new _animation.Animation(3, new THREE.Vector3(1, 0, 0), 60, [cubeGroup]));
-  animations.push(new _animation.Animation(0.5, new THREE.Vector3(1, 0, 0), 60, [cubeGroup]));
+  render(); //animations.push(new MyAnimation(1, new THREE.Vector3(1, 0, 0), 60, [cubeGroup]));
+  //animations.push(new MyAnimation(3, new THREE.Vector3(1, 0, 0), 60, [cubeGroup]));
+  //animations.push(new MyAnimation(0.5, new THREE.Vector3(1, 0, 0), 60, [cubeGroup]));
+
   return orientation.calculate;
 };
 
