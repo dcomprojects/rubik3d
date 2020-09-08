@@ -336,7 +336,9 @@ var TrackballControls2 = function TrackballControls2(object, domElement) {
       eye.copy(scope.object.position).sub(scope.target);
       eyeDirection.copy(eye).normalize();
       objectUpDirection.copy(scope.object.up).normalize();
-      objectSidewaysDirection.crossVectors(objectUpDirection, eyeDirection).normalize();
+      objectSidewaysDirection.crossVectors(objectUpDirection, eyeDirection).normalize(); //objectUpDirection.applyMatrix4(scope.object.matrixWorld).normalize();
+      //objectSidewaysDirection.applyMatrix4(scope.object.matrixWorld).normalize();
+
       return {
         "vertical": objectUpDirection.clone(),
         "horizontal": objectSidewaysDirection.clone()
@@ -1045,9 +1047,7 @@ var render3d = function render3d(cube, changeHandler) {
   camera.position.x = -7;
   */
 
-  var cPos = new THREE.Vector3(0, 5, 0);
-  var rota = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI / 3.0, Math.PI / 3.0));
-  cPos.applyQuaternion(rota);
+  var cPos = new THREE.Vector3(0, 0, 7);
   camera.position.x = cPos.x;
   camera.position.y = cPos.y;
   camera.position.z = cPos.z;
@@ -1176,12 +1176,20 @@ var render3d = function render3d(cube, changeHandler) {
 
   orbit.addEventListener("click", function (e) {
     console.log(e);
+    var angle = Math.PI / 3.0;
 
     if (Math.abs(e.x) > Math.abs(e.y)) {
-      animations.push(new _animation.Animation(1, e.verticalAxis, 60, [cubeGroup])); //rotateHorizontal(e.x);
+      if (e.x < 0) {
+        angle *= -1;
+      }
+
+      animations.unshift(new _animation.Animation(0.3, e.verticalAxis, angle, [cubeGroup]));
     } else {
-      //rotateVertical(e.y);
-      animations.push(new _animation.Animation(1, e.horizontalAxis, 60, [cubeGroup]));
+      if (e.y >= 0) {
+        angle *= -1;
+      }
+
+      animations.unshift(new _animation.Animation(0.3, e.horizontalAxis, angle, [cubeGroup]));
     }
   });
   window.addEventListener('keydown', function (e) {
@@ -1214,10 +1222,9 @@ var render3d = function render3d(cube, changeHandler) {
       pMap[p.key].applyMatrix4(m);
     });
   }, true);
-  render(); //animations.push(new MyAnimation(1, new THREE.Vector3(1, 0, 0), 60, [cubeGroup]));
-  //animations.push(new MyAnimation(3, new THREE.Vector3(1, 0, 0), 60, [cubeGroup]));
-  //animations.push(new MyAnimation(0.5, new THREE.Vector3(1, 0, 0), 60, [cubeGroup]));
-
+  render();
+  animations.unshift(new _animation.Animation(0.5, new THREE.Vector3(1, 0, 0), Math.PI / 6.0, [cubeGroup]));
+  animations.unshift(new _animation.Animation(0.5, new THREE.Vector3(0, 1, 0), Math.PI / 6.0, [cubeGroup]));
   return orientation.calculate;
 };
 
