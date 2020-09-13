@@ -1,7 +1,18 @@
-import {text} from 'd3';
-import {Cube} from "./cube";
-import {CubeHandler2d} from "./2d/render";
-import {CubeHandler3d} from "./3d/render3d";
+import {
+	text
+} from 'd3';
+import {
+	Cube
+} from "./cube";
+import {
+	CubeHandler2d
+} from "./2d/render";
+import {
+	CubeHandler3d
+} from "./3d/render3d";
+import {
+	Menu
+} from "./menu";
 
 const onload = () => {
 	return new Promise(function (resolve) {
@@ -48,9 +59,17 @@ const render = (cube) => {
 		resolve();
 	});
 
-};  
+};
 
 Promise.all([initCube(), onload()]).then(values => {
 	initWindowProps();
 	render(values[0]);
+	new Menu({
+		"links": [{
+			text: "Scramble",
+			fn: (e) => {
+				values[0].scramble();
+			}
+		}]
+	});
 });

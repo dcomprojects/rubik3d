@@ -386,4 +386,8 @@ Cube.prototype.getOpposite = function(key) {
     return this.get(opposites[key]);
 };
 
+Cube.prototype.scramble = function() {
+    console.log("Scramble requested");
+};
+
 export {Cube, ColorMap};
