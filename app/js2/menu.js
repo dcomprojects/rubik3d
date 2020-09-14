@@ -7,14 +7,7 @@ function Menu(attribs) {
     select("#menu")
     .on("click", function() {
 
-        let hiding = dropDownVisible;
         dropDownVisible = !dropDownVisible;
-
-        if (!hiding) {
-            select(".dropdown-content")
-            .classed("show", dropDownVisible);
-        }
-
         let right = dropDownVisible ? "0px" : "-100px";
         select(".dropdown-content")
         .style("right", right);
@@ -22,9 +15,6 @@ function Menu(attribs) {
     });
 
     select(".dropdown-content")
-    .on("transitionend", function(d) {
-        select(this).classed("show", dropDownVisible);
-    })
     .selectAll("a")
     .data(attribs.links)
     .join("a")
