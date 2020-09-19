@@ -11,7 +11,8 @@ import {
 	CubeHandler3d
 } from "./3d/render3d";
 import {
-	Menu
+	Menu, 
+	updateFrontFaceAngle
 } from "./menu";
 
 const onload = () => {
@@ -52,6 +53,7 @@ const render = (cube) => {
 		};
 
 		ch3d.render3d((e) => {
+			updateFrontFaceAngle(ch3d.getFrontFaceAngle());
 			ch2d.setFaces(orientationFn);
 		});
 

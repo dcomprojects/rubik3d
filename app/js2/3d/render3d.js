@@ -247,9 +247,84 @@ let render3d = (cube, changeHandler) => {
 
     }.bind(orientation);
 
+    orientation.frontFaceAngle = function () {
+
+        let cameraDir = new THREE.Vector3();
+        camera.getWorldDirection(cameraDir);
+
+        let _target = new THREE.Vector3();
+        let _cameraPos = new THREE.Vector3();
+        camera.getWorldPosition(_cameraPos);
+        let centers = cubeGroup.children.filter(e => e.userData.piece.isCenter());
+        let distances = centers.map(e => e.getWorldPosition(_target).distanceToSquared(_cameraPos));
+
+        let front = centers[scan(distances)];
+
+        let frontDir = new THREE.Vector3().fromArray(
+            front.userData.piece.position2()
+        ).negate().normalize();
+
+        front.worldToLocal(cameraDir);
+        cameraDir.normalize();
+
+        let frontUp = front.up.clone();
+        frontUp.normalize();
+
+        let cameraUp = camera.up.clone();
+        camera.localToWorld(cameraUp);
+        front.worldToLocal(cameraUp);
+        cameraUp.normalize();
+
+        let dot = cameraDir.dot(frontDir);
+        let angle = THREE.MathUtils.radToDeg(cameraDir.angleTo(frontDir));
+        let upAngle = THREE.MathUtils.radToDeg(cameraUp.angleTo(frontUp));
+
+        return {
+            "dot": dot,
+            "angle": angle,
+            "upAngle": upAngle,
+        };
+    };
+
+    let getRotationAngle = (e, cam, cg) => {
+
+        let camWorldDir = new THREE.Vector3();
+        cam.getWorldDirection(camWorldDir);
+
+        console.log(`Cam World Dir 
+        ${camWorldDir.x} ${camWorldDir.y} ${camWorldDir.z}
+        `);
+
+        let _target = new THREE.Vector3();
+        let _cameraPos = new THREE.Vector3();
+        cam.getWorldPosition(_cameraPos);
+        let centers = cg.children.filter(e => e.userData.piece.isCenter());
+        let distances = centers.map(e => e.getWorldPosition(_target).distanceToSquared(_cameraPos));
+
+        const blah = {};
+        let front = centers[scan(distances)];
+
+        console.log(`Front:`);
+        console.log(front.userData.piece);
+
+        let frontWorldDir = new THREE.Vector3();
+        front.getWorldDirection(frontWorldDir);
+        console.log(`Front World Dir 
+        ${frontWorldDir.x} ${frontWorldDir.y} ${frontWorldDir.z}
+        `);
+
+        console.log(`Dot: ${camWorldDir.dot(frontWorldDir)}`);
+        console.log(`AngleTo: ${THREE.MathUtils.radToDeg(camWorldDir.angleTo(frontWorldDir))}`);
+
+        return Math.PI / 3.0;
+    };
+
     orbit.addEventListener("click", (e) => {
         console.log(e);
-        let angle = Math.PI/3.0;
+
+        let angle = getRotationAngle(e, camera, cubeGroup);
+
+        //let angle = Math.PI/3.0;
         if (Math.abs(e.x) > Math.abs(e.y)) {
 
             if (e.x < 0) {
@@ -312,7 +387,7 @@ let render3d = (cube, changeHandler) => {
     animations.unshift(new MyAnimation(0.5, new THREE.Vector3(1, 0, 0), Math.PI/6.0, [cubeGroup]));
     animations.unshift(new MyAnimation(0.5, new THREE.Vector3(0, 1, 0), Math.PI/6.0, [cubeGroup]));
 
-    return orientation.calculate;
+    return orientation;
 };
 
 function CubeHandler3d(cube) {
@@ -325,20 +400,12 @@ CubeHandler3d.prototype.render3d = function(fn) {
 
 
 CubeHandler3d.prototype.getOrientationMap = function() {
-
-    return this.orientationCalculator();
-
-    /*
-    return {
-        "up": "white",
-        "front": "green",
-        "left": "orange",
-        "right": "red",
-        "down": "yellow",
-        "back": "blue"
-    };
-    */
+    return this.orientationCalculator.calculate();
 }; 
+
+CubeHandler3d.prototype.getFrontFaceAngle = function() {
+    return this.orientationCalculator.frontFaceAngle();
+};
 
 
 export {

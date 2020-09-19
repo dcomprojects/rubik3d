@@ -198,7 +198,7 @@ Piece.prototype.getFaceColor = function(color) {
         let cf = this.colorFaces[k]; 
 
         if (cf.color !== "#" && cf.adjacentCenter().key === color) {
-            console.log(cf);
+            //console.log(cf);
             ret = cf.color;
         }
     });
@@ -272,9 +272,9 @@ Cube.prototype.rotate = function(face) {
         let rota = this.faceRotations[face];
         let dir = FACES[face].direction; 
         if (vec3.dot(p.position2(), dir) === 1) {
-            console.log(p.toString());
+            //console.log(p.toString());
             p.rotate(rota);
-            console.log(p.toString());
+            //console.log(p.toString());
         }
     }
 
@@ -293,9 +293,9 @@ Cube.prototype.rotateReverse = function(face) {
         let rota = mat4.invert(mat4.create(), this.faceRotations[face]);
         let dir = FACES[face].direction; 
         if (vec3.dot(p.position2(), dir) === 1) {
-            console.log(p.toString());
+            //console.log(p.toString());
             p.rotate(rota);
-            console.log(p.toString());
+            //console.log(p.toString());
         }
     }
 
