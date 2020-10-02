@@ -30,15 +30,19 @@ let updateFrontFaceAngle = (info) => {
     var f = format(".2f");
     
     let data = [];
-    ["angle", "dot", "upAngle"].map(l => {
-        data.push({"label": l, "value": info[l]});
+    ["x", "y", "z"].map(l => {
+        data.push({"label": l, "value": f(info[l])});
+    });
+
+    ["red", "green", "blue", "white", "yellow", "orange"].map(l => {
+        data.push({"label": l, "value": `${f(info[l].x)}, ${f(info[l].y)}, ${f(info[l].z)}`});
     });
 
     select("#info")
     .selectAll("p")
     .data(data)
     .join("p")
-    .text(d => `${d.label}: ${f(d.value)}`);
+    .text(d => `${d.label}: ${d.value}`);
 
 };
 

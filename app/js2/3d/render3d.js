@@ -16,6 +16,8 @@ import {
 } from 'd3';
 import {Animation as MyAnimation} from './animation';
 
+import {RenderCubeFactory} from './renderCubeFactory';
+
 
 let render3d = (cube, changeHandler) => {
 
@@ -29,81 +31,12 @@ let render3d = (cube, changeHandler) => {
 
     divCube.appendChild(renderer.domElement);
 
-    var pieceGeom = new THREE.BoxGeometry(0.95, 0.95, 0.95);
-
-    let cubeGroup = new THREE.Group();
-
-    pieceGeom.faces.forEach((f, i) => {
-        f.materialIndex = i;
-    });
-
-    let fn = (c, pMap) => {
-
-        console.log(c.colorFaces);
-
-        let faceMaterials = [];
-
-        pieceGeom.faces.forEach(f => {
-
-            let fmat = new THREE.MeshBasicMaterial({
-                color: new THREE.Color("black")
-            });
-
-            faceMaterials.push(fmat);
-
-            Object.keys(c.colorFaces).forEach(k => {
-                let cf = c.colorFaces[k];
-
-                let dot = vec3.dot(vec3.fromValues(
-                    f.normal.x,
-                    f.normal.y,
-                    f.normal.z), cf.vector);
-
-                if (dot === 1) {
-                    fmat.color.setColorName(k);
-                }
-            });
-        });
-
-        let m = new THREE.Mesh(pieceGeom, faceMaterials);
-        m.position.set(
-            c.position2()[0],
-            c.position2()[1],
-            c.position2()[2]);
-        m.userData = {
-            piece: c
-        };
-        cubeGroup.add(m);
-        pMap[c.key] = m;
-    };
-
-    let pieces = {};
-    let top = cube.getFace("white");
-    let bottom = cube.getFace("yellow");
-    let left = cube.getFace("orange");
-    let right = cube.getFace("red");
-    let front = cube.getFace("green");
-    let back = cube.getFace("blue");
     let animations = [];
 
-    [top, bottom, left, right, front, back].forEach(s => {
-        s.forEach(p => {
-            pieces[p.key] = p;
-        });
-    });
+    let factory = new RenderCubeFactory();
+    let cubeGroup2 = factory.create(cube);
 
-    let pMap = {};
-    Object.keys(pieces).forEach(k => {
-        fn(pieces[k], pMap);
-    });
-
-    scene.add(cubeGroup);
-
-    /*
-    camera.position.z = 5;
-    camera.position.y = 1;
-    camera.position.x = -7;
-    */
+    scene.add(cubeGroup2);
 
     let cPos = new THREE.Vector3(0, 0, 7);
     camera.position.x = cPos.x;
@@ -113,23 +46,12 @@ let render3d = (cube, changeHandler) => {
     let orbit = new TrackballControls2(camera, renderer.domElement);
     orbit.rotateSpeed = 2;
 
+    let drift = 0;
+
     orbit.addEventListener("change", (e) => {
         changeHandler(e);
+        drift = 0;
     });
-
-    let render = () => {
-        requestAnimationFrame(render);
-
-        if (animations.length) {
-            changeHandler();
-            if (!animations[animations.length - 1].tick()) {
-                animations.pop();
-            }
-        }
-
-        orbit.update();
-        renderer.render(scene, camera);
-    };
 
     const rotateMap = {
         "red": new THREE.Vector3(1, 0, 0),
@@ -140,10 +62,11 @@ let render3d = (cube, changeHandler) => {
         "green": new THREE.Vector3(0, -1, 0)
     };
 
+
     const rFn = (face, rad) => {
 
         let axis = rotateMap[face];
-        animations.unshift(new MyAnimation(0.5, axis, rad, cube.getFace(face).map(p => pMap[p.key])));
+        animations.unshift(new MyAnimation(0.5, axis, rad, cube.getFace(face).map(p => cubeGroup2.getByKey(p.key)))); 
 
     };
 
@@ -160,6 +83,25 @@ let render3d = (cube, changeHandler) => {
         rayCaster: new THREE.Raycaster(),
     };
 
+   const colorMap = {
+       "g": "green",
+       "o": "orange",
+       "b": "blue",
+       "r": "red",
+       "w": "white",
+       "y": "yellow"
+   };
+
+   const colorToKey = {
+       "green": "g",
+       "orange": "o",
+       "blue": "b",
+       "red": "r",
+        "white": "w",
+        "yellow": "y"
+   };
+
+
     orientation.calculate = function () {
 
         this.rayCaster.setFromCamera({
@@ -167,13 +109,13 @@ let render3d = (cube, changeHandler) => {
             y: 0
         }, camera);
 
-        let a = this.rayCaster.intersectObjects(cubeGroup.children);
+        let a = this.rayCaster.intersectObjects(cubeGroup2.children);
 
         let _target = new THREE.Vector3();
         let _cameraPos = new THREE.Vector3();
         camera.getWorldPosition(_cameraPos);
 
-        let centers = cubeGroup.children.filter(e => e.userData.piece.isCenter());
+        let centers = cubeGroup2.children.filter(e => e.userData.piece.isCenter());
         let distances = centers.map(e => e.getWorldPosition(_target).distanceToSquared(_cameraPos));
 
         const blah = {};
@@ -227,15 +169,6 @@ let render3d = (cube, changeHandler) => {
         console.log(`Bottom: ${bottom.userData.piece.key}`);
         */
 
-        const colorMap = {
-            "g": "green",
-            "o": "orange",
-            "b": "blue",
-            "r": "red",
-            "w": "white",
-            "y": "yellow"
-        };
-
         return {
             "front": colorMap[front.userData.piece.key],
             "left": colorMap[left.userData.piece.key],
@@ -252,38 +185,33 @@ let render3d = (cube, changeHandler) => {
         let cameraDir = new THREE.Vector3();
         camera.getWorldDirection(cameraDir);
 
+
         let _target = new THREE.Vector3();
         let _cameraPos = new THREE.Vector3();
         camera.getWorldPosition(_cameraPos);
-        let centers = cubeGroup.children.filter(e => e.userData.piece.isCenter());
+        let centers = cubeGroup2.children.filter(e => e.userData.piece.isCenter());
         let distances = centers.map(e => e.getWorldPosition(_target).distanceToSquared(_cameraPos));
 
         let front = centers[scan(distances)];
 
-        let frontDir = new THREE.Vector3().fromArray(
-            front.userData.piece.position2()
-        ).negate().normalize();
+        let frontPos = new THREE.Vector3();
+        front.getWorldPosition(frontPos);
+        camera.worldToLocal(frontPos);
 
-        front.worldToLocal(cameraDir);
-        cameraDir.normalize();
+        let directions = {};
+        centers.forEach(c => {
+            let centerPos = new THREE.Vector3();
+            c.getWorldPosition(centerPos);
+            camera.worldToLocal(centerPos);
 
-        let frontUp = front.up.clone();
-        frontUp.normalize();
+            directions[colorMap[c.userData.piece.key]] = centerPos.sub(frontPos).normalize();
+        });
 
-        let cameraUp = camera.up.clone();
-        camera.localToWorld(cameraUp);
-        front.worldToLocal(cameraUp);
-        cameraUp.normalize();
-
-        let dot = cameraDir.dot(frontDir);
-        let angle = THREE.MathUtils.radToDeg(cameraDir.angleTo(frontDir));
-        let upAngle = THREE.MathUtils.radToDeg(cameraUp.angleTo(frontUp));
-
-        return {
-            "dot": dot,
-            "angle": angle,
-            "upAngle": upAngle,
-        };
+        return Object.assign(directions, {
+            "x": frontPos.x,
+            "y": frontPos.y,
+            "z": frontPos.z,
+        });
     };
 
     let getRotationAngle = (e, cam, cg) => {
@@ -322,7 +250,7 @@ let render3d = (cube, changeHandler) => {
     orbit.addEventListener("click", (e) => {
         console.log(e);
 
-        let angle = getRotationAngle(e, camera, cubeGroup);
+        let angle = getRotationAngle(e, camera, cubeGroup2);
 
         //let angle = Math.PI/3.0;
         if (Math.abs(e.x) > Math.abs(e.y)) {
@@ -331,13 +259,13 @@ let render3d = (cube, changeHandler) => {
                 angle *= -1;
             }
 
-            animations.unshift(new MyAnimation(0.3, e.verticalAxis, angle, [cubeGroup]));
+            animations.unshift(new MyAnimation(0.3, e.verticalAxis, angle, [cubeGroup2]));
         } else {
 
             if (e.y >= 0) {
                 angle *= -1;
             }
-            animations.unshift(new MyAnimation(0.3, e.horizontalAxis, angle, [cubeGroup]));
+            animations.unshift(new MyAnimation(0.3, e.horizontalAxis, angle, [cubeGroup2]));
         }
     });
 
@@ -365,7 +293,7 @@ let render3d = (cube, changeHandler) => {
 
         cube.getFace(face).forEach(p => {
 
-            let pos = pMap[p.key].position.clone();
+            let pos = cubeGroup2.getByKey(p.key).position.clone();
 
             let m1 = new THREE.Matrix4().makeTranslation(-pos.x, -pos.y, -pos.z);
             let r1 = new THREE.Matrix4().makeRotationAxis(
@@ -377,15 +305,64 @@ let render3d = (cube, changeHandler) => {
             let m = new THREE.Matrix4();
             m.multiplyMatrices(r1, m2);
             m.multiplyMatrices(m, m1);
-            pMap[p.key].applyMatrix4(m);
+            cubeGroup2.getByKey(p.key).applyMatrix4(m);
 
         });
     }, true);
 
+    let targetDir = new THREE.Vector3().set(0.42, -0.50, -6.24).normalize();
+
+    let applyDrift = function() {
+
+        let o = orientation.calculate();
+        let f = cubeGroup2.children.find(e => e.userData.piece.key === colorToKey[o.front]);
+
+
+        let frontPos = new THREE.Vector3();
+        f.getWorldPosition(frontPos);
+        camera.worldToLocal(frontPos);
+
+        frontPos.normalize(); 
+
+        console.log(frontPos);
+        console.log(targetDir);
+
+        let q = new THREE.Quaternion(); 
+        q.setFromUnitVectors(frontPos, targetDir);
+        animations.unshift(new MyAnimation(0.05, new THREE.Vector3(), 0, [cubeGroup2]).qauternion(q));
+
+        //get front face
+        //get angle
+        //get quaternion to get that position
+        //push an animation
+
+    };
+
+    let render = () => {
+        requestAnimationFrame(render);
+
+        if (animations.length) {
+            changeHandler();
+            if (!animations[animations.length - 1].tick()) {
+                animations.pop();
+            }
+        }
+
+        drift += 1;
+
+        if (drift >= 120) {
+            applyDrift();
+            drift = 0; 
+        }
+
+        orbit.update();
+        renderer.render(scene, camera);
+    };
+
     render();
 
-    animations.unshift(new MyAnimation(0.5, new THREE.Vector3(1, 0, 0), Math.PI/6.0, [cubeGroup]));
-    animations.unshift(new MyAnimation(0.5, new THREE.Vector3(0, 1, 0), Math.PI/6.0, [cubeGroup]));
+    animations.unshift(new MyAnimation(0.5, new THREE.Vector3(1, 0, 0), Math.PI/6.0, [cubeGroup2]));
+    animations.unshift(new MyAnimation(0.5, new THREE.Vector3(0, 1, 0), Math.PI/6.0, [cubeGroup2]));
 
     return orientation;
 };

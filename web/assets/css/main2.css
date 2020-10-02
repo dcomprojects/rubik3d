@@ -190,8 +190,8 @@ body {
 #info {
   position: absolute;
   background-color: grey;
-  width: 120px;
-  height: 120px;
+  width: 220px;
+  height: 360px;
   left: 2px;
   top: 2px;
   justify-self: left;

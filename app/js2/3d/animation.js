@@ -11,6 +11,11 @@ function Animation(duration, axis, angle, targets) {
 
 }
 
+Animation.prototype.qauternion = function(q) {
+    this.qTarget = q;
+    return this;
+};
+
 Animation.prototype.tick = function() {
 
     const delta = this.clock.getDelta();
