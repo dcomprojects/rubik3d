@@ -17,6 +17,8 @@ import {
 import {Animation as MyAnimation} from './animation';
 
 import {RenderCubeFactory} from './renderCubeFactory';
+import {RotationHelper} from './getRotation';
+import { Euler } from 'three/build/three.module';
 
 
 let render3d = (cube, changeHandler) => {
@@ -47,9 +49,11 @@ let render3d = (cube, changeHandler) => {
     orbit.rotateSpeed = 2;
 
     let drift = 0;
+    let drifting = false;
 
     orbit.addEventListener("change", (e) => {
         changeHandler(e);
+        drifting = true;
         drift = 0;
     });
 
@@ -312,30 +316,20 @@ let render3d = (cube, changeHandler) => {
 
     let targetDir = new THREE.Vector3().set(0.42, -0.50, -6.24).normalize();
 
+    let rotationHelper = new RotationHelper(camera, cube, cubeGroup2);
     let applyDrift = function() {
 
         let o = orientation.calculate();
-        let f = cubeGroup2.children.find(e => e.userData.piece.key === colorToKey[o.front]);
+        let frontKey = colorToKey[o.front];
 
+        let rota = rotationHelper.getRotationToNormalizedPosition(
+            frontKey,
+            new THREE.Euler(THREE.MathUtils.degToRad(30), THREE.MathUtils.degToRad(30))
+        );
 
-        let frontPos = new THREE.Vector3();
-        f.getWorldPosition(frontPos);
-        camera.worldToLocal(frontPos);
+        //let qTarget = cubeGroup2.quaternion.clone().premultiply(rota.delta);
 
-        frontPos.normalize(); 
-
-        console.log(frontPos);
-        console.log(targetDir);
-
-        let q = new THREE.Quaternion(); 
-        q.setFromUnitVectors(frontPos, targetDir);
-        animations.unshift(new MyAnimation(0.05, new THREE.Vector3(), 0, [cubeGroup2]).qauternion(q));
-
-        //get front face
-        //get angle
-        //get quaternion to get that position
-        //push an animation
-
+        animations.unshift(new MyAnimation(2, new THREE.Vector3(), 0, [cubeGroup2]).qauternion(rota.delta));
     };
 
     let render = () => {
@@ -348,11 +342,14 @@ let render3d = (cube, changeHandler) => {
             }
         }
 
-        drift += 1;
+        if (drifting) {
+            drift += 1;
 
-        if (drift >= 120) {
-            applyDrift();
-            drift = 0; 
+            if (drift >= 120) {
+                applyDrift();
+                drifting = false;
+                drift = 0;
+            }
         }
 
         orbit.update();

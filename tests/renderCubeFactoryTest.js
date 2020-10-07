@@ -20,5 +20,5 @@ test('test angle calculation', t => {
     let factory = new t.context.sut.RenderCubeFactory();
     let renderCube = factory.create(t.context.cube);
 
-    t.true(renderCube);
+    t.true(Object.keys(renderCube.userData));
 });

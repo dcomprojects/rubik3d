@@ -260,6 +260,7 @@ Cube.prototype.onRotateReverse = function(fn) {
 
 Cube.prototype.rotate = function(face) {
 
+    //send an event to get the 2d faces to update (such as when scrambling)
     console.log(`Rotate: ${face}`);
 
     if (this.rotateCallBack) {
@@ -282,6 +283,7 @@ Cube.prototype.rotate = function(face) {
 
 Cube.prototype.rotateReverse = function(face) {
 
+    //send an event to get the 2d faces to update (such as when scrambling)
     console.log(`Rotate: ${face}`);
     if (this.rotateReverseCallBack) {
         this.rotateReverseCallBack(face);
