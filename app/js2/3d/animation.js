@@ -7,9 +7,40 @@ function Animation(duration, axis, angle, targets) {
     this.duration = duration;
     this.qTarget = new THREE.Quaternion().setFromAxisAngle(axis, angle);
     this.targets = targets;
-    this.q0 = new THREE.Quaternion();
-
+    this.t = 0;
+    this.started = false;
 }
+
+Animation.prototype.init = function () {
+
+    if (this.started) {
+        return;
+    }
+
+    this.animationParent = new THREE.Group();
+
+    if (this.targets.length == 1) {
+
+        this.qStart = this.targets[0].parent.quaternion.clone();
+        this.targets[0].parent.add(this.animationParent);
+
+    } else {
+
+        let c = this.targets.find(e => e.userData.piece.isCenter());
+        this.qStart = c.parent.quaternion.clone();
+        c.parent.add(this.animationParent);
+
+    }
+
+    this.parents = {};
+    this.targets.forEach(e => {
+        this.parents[e.uuid] = e.parent;
+        this.animationParent.add(e);
+    });
+
+    this.qStart = new THREE.Quaternion();
+    this.started = true;
+};
 
 Animation.prototype.qauternion = function(q) {
     this.qTarget = q;
@@ -18,17 +49,21 @@ Animation.prototype.qauternion = function(q) {
 
 Animation.prototype.tick = function() {
 
-    const delta = this.clock.getDelta();
-    const pct = delta/this.duration;
-    this.duration -= delta;
+    const elapsed = this.clock.getElapsedTime();
+    const pct = elapsed/this.duration;
 
-    let q1 = new THREE.Quaternion().slerp(this.qTarget, pct > 1 ? 1 : pct);
-    this.qTarget = new THREE.Quaternion().slerp(this.qTarget, pct > 1 ? 0 : 1 - pct);
-    this.targets.forEach(t => {
-        t.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(q1));
-    });
+    THREE.Quaternion.slerp(this.qStart, this.qTarget, this.animationParent.quaternion, Math.min(pct, 1.0));
 
-    return this.duration > 0;
+    if (pct >= 1) {
+       this.targets.forEach(e => {
+        let p = this.parents[e.uuid];
+        p.attach(e);
+       });
+
+       this.animationParent.parent.remove(this.animationParent);
+    }
+
+    return pct < 1;
 };
 
 export {Animation};

@@ -1,11 +1,12 @@
 import * as THREE from 'three';
+import { Vector2, Vector3 } from 'three/build/three.module';
 
 let RotationHelper = function(camera, cube, cubeGroup) {
 
     let scope = this;
 
-    this.getRotationToNormalizedPosition = (frontKey, target) => {
-        return scope.blah(frontKey, target);
+    this.getRotationToNormalizedPosition = (orientation, target) => {
+        return scope.blah(orientation, target);
     };
 
     this.blah = (function() {
@@ -16,34 +17,50 @@ let RotationHelper = function(camera, cube, cubeGroup) {
         let q1 = new THREE.Quaternion();
         let q2 = new THREE.Quaternion();
         let delta = new THREE.Quaternion();
+        let deltaUp = new THREE.Quaternion();
         let m = new THREE.Matrix4();
 
-        return (frontKey, targetOrientation) => {
+        return (orientation, targetOrientation) => {
 
-            let front = cubeGroup.getByKey(frontKey);
-            front.getWorldPosition(frontPos);
-            frontPos.normalize();
+            let dtr = THREE.MathUtils.degToRad;
+            let e = new THREE.Euler(dtr(30), dtr(30));
 
-            camera.worldToLocal(frontPos);
+            let camY = camera.up.clone();
+            console.log(camY);
+            //camera.localToWorld(camY);
+            let camZ = new THREE.Vector3(0,0,-1);
+            camera.localToWorld(camZ);
 
-            let v = frontPos.dot(ihat);
-            let rotationAngle =  (Math.acos(v)); 
+            let camX = new THREE.Vector3();
+            camX.crossVectors(camY, camZ); 
 
-            v = frontPos.dot(jhat);
-            let tiltAngle = (Math.PI - Math.acos(v)); 
+            let cubeY = orientation.up.clone();
+            cubeGroup.localToWorld(cubeY);
 
-            frontPos.normalize();
+            let cubeZ = orientation.front.clone();
+            cubeGroup.localToWorld(cubeZ);
 
-            q2.setFromEuler(targetOrientation);
-            q1.setFromEuler(new THREE.Euler(tiltAngle, rotationAngle, 0)).normalize();
+            let cubeX = new THREE.Vector3();
+            cubeX.crossVectors(cubeY, cubeZ);
 
-            delta.multiplyQuaternions(q2, q1.conjugate());
+            delta.setFromUnitVectors(cubeX.normalize(), camX.normalize());
+            cubeY.applyQuaternion(delta);
+
+            let delta2 = new THREE.Quaternion();
+            delta2.setFromUnitVectors(cubeY.normalize(), camY.normalize());
+            delta.premultiply(delta2);
+
+            cubeZ.applyQuaternion(delta);
+            let delta3 = new THREE.Quaternion();
+            delta3.setFromUnitVectors(cubeZ.normalize(), camZ.normalize());
+
+            delta.premultiply(delta3)
+            .premultiply(new THREE.Quaternion().setFromAxisAngle(camY, dtr(30)))
+            .premultiply(new THREE.Quaternion().setFromAxisAngle(camX, dtr(30)));
+
 
             return {
-                "rotation": rotationAngle,
-                "tilt": tiltAngle,
-                "frontPos": frontPos,
-                "delta": delta.clone(),
+                "delta": delta.clone() 
             };
         };
 

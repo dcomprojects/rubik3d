@@ -105,6 +105,7 @@ let render3d = (cube, changeHandler) => {
         "yellow": "y"
    };
 
+    let centers = cubeGroup2.children.filter(e => e.userData.piece.isCenter());
 
     orientation.calculate = function () {
 
@@ -113,13 +114,11 @@ let render3d = (cube, changeHandler) => {
             y: 0
         }, camera);
 
-        let a = this.rayCaster.intersectObjects(cubeGroup2.children);
-
         let _target = new THREE.Vector3();
         let _cameraPos = new THREE.Vector3();
         camera.getWorldPosition(_cameraPos);
 
-        let centers = cubeGroup2.children.filter(e => e.userData.piece.isCenter());
+        //let centers = cubeGroup2.children.filter(e => e.userData.piece.isCenter());
         let distances = centers.map(e => e.getWorldPosition(_target).distanceToSquared(_cameraPos));
 
         const blah = {};
@@ -189,11 +188,10 @@ let render3d = (cube, changeHandler) => {
         let cameraDir = new THREE.Vector3();
         camera.getWorldDirection(cameraDir);
 
-
         let _target = new THREE.Vector3();
         let _cameraPos = new THREE.Vector3();
         camera.getWorldPosition(_cameraPos);
-        let centers = cubeGroup2.children.filter(e => e.userData.piece.isCenter());
+        //let centers = cubeGroup2.children.filter(e => e.userData.piece.isCenter());
         let distances = centers.map(e => e.getWorldPosition(_target).distanceToSquared(_cameraPos));
 
         let front = centers[scan(distances)];
@@ -254,9 +252,9 @@ let render3d = (cube, changeHandler) => {
     orbit.addEventListener("click", (e) => {
         console.log(e);
 
-        let angle = getRotationAngle(e, camera, cubeGroup2);
+        //let angle = getRotationAngle(e, camera, cubeGroup2);
 
-        //let angle = Math.PI/3.0;
+        let angle = Math.PI/3.0;
         if (Math.abs(e.x) > Math.abs(e.y)) {
 
             if (e.x < 0) {
@@ -322,14 +320,17 @@ let render3d = (cube, changeHandler) => {
         let o = orientation.calculate();
         let frontKey = colorToKey[o.front];
 
+        let ori = {};
+        Object.keys(o).forEach(k => {
+            ori[k] = cubeGroup2.getByKey(colorToKey[o[k]]).position;
+        });
+
         let rota = rotationHelper.getRotationToNormalizedPosition(
-            frontKey,
+            ori,
             new THREE.Euler(THREE.MathUtils.degToRad(30), THREE.MathUtils.degToRad(30))
         );
 
-        //let qTarget = cubeGroup2.quaternion.clone().premultiply(rota.delta);
-
-        animations.unshift(new MyAnimation(2, new THREE.Vector3(), 0, [cubeGroup2]).qauternion(rota.delta));
+        animations.unshift(new MyAnimation(0.3, new THREE.Vector3(), 0, [cubeGroup2]).qauternion(rota.delta));
     };
 
     let render = () => {
@@ -337,6 +338,9 @@ let render3d = (cube, changeHandler) => {
 
         if (animations.length) {
             changeHandler();
+
+            animations[animations.length - 1].init();
+
             if (!animations[animations.length - 1].tick()) {
                 animations.pop();
             }
@@ -345,7 +349,7 @@ let render3d = (cube, changeHandler) => {
         if (drifting) {
             drift += 1;
 
-            if (drift >= 120) {
+            if (drift >= 90) {
                 applyDrift();
                 drifting = false;
                 drift = 0;
