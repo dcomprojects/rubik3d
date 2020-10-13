@@ -70,7 +70,7 @@ let render3d = (cube, changeHandler) => {
     const rFn = (face, rad) => {
 
         let axis = rotateMap[face];
-        animations.unshift(new MyAnimation(0.5, axis, rad, cube.getFace(face).map(p => cubeGroup2.getByKey(p.key)))); 
+        animations.unshift(new MyAnimation(0.15, axis, rad, cube.getFace(face).map(p => cubeGroup2.getByKey(p.key)))); 
 
     };
 
