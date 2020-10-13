@@ -349,7 +349,7 @@ let render3d = (cube, changeHandler) => {
         if (drifting) {
             drift += 1;
 
-            if (drift >= 90) {
+            if (drift >= 10) {
                 applyDrift();
                 drifting = false;
                 drift = 0;

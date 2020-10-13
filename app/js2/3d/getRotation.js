@@ -74,8 +74,8 @@ let RotationHelper = function(camera, cube, cubeGroup) {
             }
 
             delta.premultiply(delta3)
-            .premultiply(new THREE.Quaternion().setFromAxisAngle(camY, dtr(yRota)))
-            .premultiply(new THREE.Quaternion().setFromAxisAngle(camX, dtr(xRota)));
+            .premultiply(new THREE.Quaternion().setFromAxisAngle(camX, dtr(xRota)))
+            .premultiply(new THREE.Quaternion().setFromAxisAngle(camY, dtr(yRota)));
 
             return {
                 "delta": delta.clone() 

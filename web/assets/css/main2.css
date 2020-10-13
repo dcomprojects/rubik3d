@@ -188,6 +188,7 @@ body {
 }
 
 #info {
+  display: none;
   position: absolute;
   background-color: grey;
   width: 220px;
