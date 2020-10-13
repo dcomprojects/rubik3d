@@ -23,6 +23,7 @@ let RotationHelper = function(camera, cube, cubeGroup) {
         return (orientation, targetOrientation) => {
 
             let dtr = THREE.MathUtils.degToRad;
+            let rtd = THREE.MathUtils.radToDeg;
             let e = new THREE.Euler(dtr(30), dtr(30));
 
             let camY = camera.up.clone();
@@ -40,6 +41,9 @@ let RotationHelper = function(camera, cube, cubeGroup) {
             let cubeZ = orientation.front.clone();
             cubeGroup.localToWorld(cubeZ);
 
+            let frontPos = cubeZ.clone(); 
+            camera.worldToLocal(frontPos);
+
             let cubeX = new THREE.Vector3();
             cubeX.crossVectors(cubeY, cubeZ);
 
@@ -54,10 +58,24 @@ let RotationHelper = function(camera, cube, cubeGroup) {
             let delta3 = new THREE.Quaternion();
             delta3.setFromUnitVectors(cubeZ.normalize(), camZ.normalize());
 
-            delta.premultiply(delta3)
-            .premultiply(new THREE.Quaternion().setFromAxisAngle(camY, dtr(30)))
-            .premultiply(new THREE.Quaternion().setFromAxisAngle(camX, dtr(30)));
+            let yRota, xRota;
+            if (frontPos.x >= 0 && frontPos.y >= 0) {
+                yRota = 30;
+                xRota = -30;
+            } else if (frontPos.x < 0 && frontPos.y < 0) {
+                yRota = -30;
+                xRota = 30;
+            } else if (frontPos.x >= 0 && frontPos.y < 0) {
+                xRota = 30;
+                yRota = 30;
+            } else {
+                xRota = -30;
+                yRota = -30;
+            }
 
+            delta.premultiply(delta3)
+            .premultiply(new THREE.Quaternion().setFromAxisAngle(camY, dtr(yRota)))
+            .premultiply(new THREE.Quaternion().setFromAxisAngle(camX, dtr(xRota)));
 
             return {
                 "delta": delta.clone() 
