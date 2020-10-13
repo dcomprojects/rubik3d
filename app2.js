@@ -1078,7 +1078,7 @@ var RotationHelper = function RotationHelper(camera, cube, cubeGroup) {
         yRota = -30;
       }
 
-      delta.premultiply(delta3).premultiply(new THREE.Quaternion().setFromAxisAngle(camY, dtr(yRota))).premultiply(new THREE.Quaternion().setFromAxisAngle(camX, dtr(xRota)));
+      delta.premultiply(delta3).premultiply(new THREE.Quaternion().setFromAxisAngle(camX, dtr(xRota))).premultiply(new THREE.Quaternion().setFromAxisAngle(camY, dtr(yRota)));
       return {
         "delta": delta.clone()
       };
@@ -1389,7 +1389,7 @@ var render3d = function render3d(cube, changeHandler) {
     if (drifting) {
       drift += 1;
 
-      if (drift >= 90) {
+      if (drift >= 10) {
         applyDrift();
         drifting = false;
         drift = 0;
