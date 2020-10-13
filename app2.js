@@ -1153,7 +1153,7 @@ var render3d = function render3d(cube, changeHandler) {
 
   var rFn = function rFn(face, rad) {
     var axis = rotateMap[face];
-    animations.unshift(new _animation.Animation(0.5, axis, rad, cube.getFace(face).map(function (p) {
+    animations.unshift(new _animation.Animation(0.15, axis, rad, cube.getFace(face).map(function (p) {
       return cubeGroup2.getByKey(p.key);
     })));
   };
