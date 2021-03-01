@@ -37,7 +37,7 @@
     "gulp-terser": "^1.2.0",
     "ml-regression-polynomial": "^2.1.0",
     "random": "^2.2.0",
-    "three": "^0.118.3",
+    "three": "^0.125.0",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
   },
